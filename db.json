@@ -1,0 +1,163 @@
+{
+  "admins": [
+    {
+      "id": "1",
+      "nome": "Admin Master",
+      "email": "gafarringa@heineken.com",
+      "role": "master",
+      "status": "ativo",
+      "senha": "123456"
+    },
+    {
+      "id": "75ee",
+      "nome": "Guilherme",
+      "email": "gui@heineken.com",
+      "senha": "123",
+      "role": "adm",
+      "status": "ativo"
+    },
+    {
+      "id": "366c",
+      "nome": "Alexandre",
+      "email": "alex@heiway.net",
+      "senha": "123",
+      "role": "consultor",
+      "status": "ativo"
+    },
+    {
+      "id": "51ab",
+      "nome": "Leandro",
+      "email": "leo@heineken.com",
+      "senha": "123",
+      "role": "adm",
+      "status": "pendente"
+    }
+  ],
+  "clientes": [
+    {
+      "nome": "CL001 -Cliente A",
+      "id": "3e3b"
+    },
+    {
+      "nome": "CL002 - Cliente B",
+      "id": "5c7a"
+    },
+    {
+      "nome": "CL003 - Cliente C",
+      "id": "824e"
+    },
+    {
+      "nome": "CL004 - Cliente D",
+      "id": "3516"
+    },
+    {
+      "nome": "CL005 - Cliente E",
+      "id": "6a2b"
+    }
+  ],
+  "transportadoras": [
+    {
+      "nome": "TR001 - TransLog Brasil",
+      "id": "2ce9"
+    },
+    {
+      "nome": "TR002 - Rápido Sul Transportes",
+      "id": "f5be"
+    },
+    {
+      "nome": "TR003 - Veloz Cargo",
+      "id": "80b9"
+    },
+    {
+      "nome": "TR004 - Norte Expresso",
+      "id": "82d0"
+    },
+    {
+      "nome": "TR005 - Carga & Cia",
+      "id": "2fd6"
+    }
+  ],
+  "valescadastrados": [
+    {
+      "id": "4383",
+      "cliente": "CL001 -Cliente A",
+      "transportadora": "TR001 - TransLog Brasil",
+      "quantidade": 85,
+      "valorUnitario": 8000,
+      "dataVencimento": "2025-08-21T00:00:00.000Z",
+      "dataCriacao": "2025-08-10T21:33:51.504Z",
+      "observacoes": "Teste para Vales acumulados",
+      "status": "pendente"
+    },
+    {
+      "id": "43ee",
+      "cliente": "CL002 - Cliente B",
+      "transportadora": "TR001 - TransLog Brasil",
+      "quantidade": 80,
+      "valorUnitario": 69000,
+      "dataVencimento": "2025-08-21T00:00:00.000Z",
+      "dataCriacao": "2025-08-10T21:48:06.647Z",
+      "observacoes": "Teste 2 de acumulados",
+      "status": "pendente"
+    },
+    {
+      "id": "7dd3",
+      "cliente": "CL001 -Cliente A",
+      "transportadora": "TR002 - Rápido Sul Transportes",
+      "quantidade": 15,
+      "valorUnitario": 300,
+      "dataVencimento": "2025-08-30T00:00:00.000Z",
+      "dataCriacao": "2025-08-10T22:43:30.043Z",
+      "observacoes": "Teste para gráfico de transportadora",
+      "status": "pendente"
+    },
+    {
+      "id": "f61b",
+      "cliente": "CL001 -Cliente A",
+      "transportadora": "TR002 - Rápido Sul Transportes",
+      "quantidade": 15,
+      "valorUnitario": 299.97,
+      "dataVencimento": "2025-08-10T00:00:00.000Z",
+      "dataCriacao": "2025-08-10T22:50:16.412Z",
+      "observacoes": "teste",
+      "status": "pendente"
+    }
+  ],
+  "valesvencidos": [
+    {
+      "id": "f61b",
+      "cliente": "CL001 -Cliente A",
+      "transportadora": "TR002 - Rápido Sul Transportes",
+      "quantidade": 15,
+      "valorUnitario": 299.97,
+      "dataVencimento": "2025-08-10T00:00:00.000Z",
+      "dataCriacao": "2025-08-10T22:50:16.412Z",
+      "observacoes": "teste",
+      "status": "vencido"
+    }
+  ],
+  "valesprocessados": [
+    {
+      "id": "a0c9",
+      "cliente": "CL002 - Cliente B",
+      "transportadora": "TR001 - TransLog Brasil",
+      "quantidade": 15,
+      "valorUnitario": 600,
+      "dataVencimento": "2025-08-12T00:00:00.000Z",
+      "dataCriacao": "2025-08-10T20:53:55.779Z",
+      "observacoes": "Teste de funcionalidade",
+      "status": "processado"
+    },
+    {
+      "id": "87ba",
+      "cliente": "CL002 - Cliente B",
+      "transportadora": "TR002 - Rápido Sul Transportes",
+      "quantidade": 15,
+      "valorUnitario": 500,
+      "dataVencimento": "2025-08-11T00:00:00.000Z",
+      "dataCriacao": "2025-08-10T22:53:13.555Z",
+      "observacoes": "Teste",
+      "status": "processado"
+    }
+  ]
+}
