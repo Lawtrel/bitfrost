@@ -8,6 +8,14 @@ import { Search, Filter, Eye, CheckCircle, Clock, AlertTriangle, Download } from
 import { useVales, Vale } from "@/hooks/useVales"; // Hook Firebase
 import { deleteDoc, doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const BaixarVale = () => {
   const { buscarVales, baixarVale, loading: loadingHook } = useVales();
@@ -16,8 +24,10 @@ const BaixarVale = () => {
   const [error, setError] = useState<string | null>(null);
   const [filtro, setFiltro] = useState("");
   const [transportadoraFiltro, setTransportadoraFiltro] = useState("");
-  const [selectedVale, setSelectedVale] = useState<string | null>(null);
+  const [modalVale, setModalVale] = useState<Vale | null>(null);
   const { toast } = useToast();
+  const [valeSelecionado, setValeSelecionado] = useState<Vale | null>(null);
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     const fetchVales = async () => {
@@ -92,11 +102,6 @@ const darBaixa = async (id: string) => {
   }
 };
 
-
-  const visualizarVale = (id: string) => {
-    setSelectedVale(selectedVale === id ? null : id);
-  };
-
   const valesFiltrados = vales.filter(vale => {
     const clienteMatch = vale.cliente.toLowerCase().includes(filtro.toLowerCase());
     const transportadoraMatch =  vale.transportadora.toLowerCase().includes(transportadoraFiltro.toLowerCase());
@@ -113,7 +118,9 @@ const darBaixa = async (id: string) => {
     const vencimento = new Date(dataVencimento);
     const diffDays = Math.ceil((vencimento.getTime() - hoje.getTime()) / (1000 * 3600 * 24));
     if (diffDays < 0) return "text-red-600 bg-red-50";
-    if (diffDays <= 3) return "text-orange-600 bg-orange-50";
+    if (diffDays <= 3){
+      return "text-orange-600 bg-orange-50";
+    } 
     return "text-green-600 bg-green-50";
   };
 
@@ -128,6 +135,29 @@ const darBaixa = async (id: string) => {
 
   if (loading) return <div className="p-6 text-center">Carregando vales...</div>;
   if (error) return <div className="p-6 text-center text-red-600">{error}</div>;
+  const confirmarContato = async () => {
+    if (!valeSelecionado) return;
+
+    try {
+      // Envia para processados e remove dos cadastrados
+      await baixarVale(valeSelecionado.id);
+
+      setVales(old => old.filter(v => v.id !== valeSelecionado.id));
+      setOpenModal(false);
+
+      toast({
+        title: "📞 Cliente contatado!",
+        description: `Vale ${valeSelecionado.id} foi movido para processados.`,
+      });
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Erro",
+        description: "Falha ao processar o contato. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <>
@@ -203,13 +233,75 @@ const darBaixa = async (id: string) => {
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <Button variant="outline" size="sm" onClick={() => visualizarVale(vale.id)} className="hover:bg-blue-50">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setModalVale(vale)}
+                    className="hover:bg-blue-50"
+                  >
                     <Eye className="w-4 h-4 mr-2" />
-                    {selectedVale === vale.id ? 'Ocultar' : 'Visualizar'}
+                    Visualizar
                   </Button>
-                  <Button onClick={() => darBaixa(vale.id)} className="bg-green-600 hover:bg-green-700 text-white">
-                    <CheckCircle className="w-4 h-4 mr-2" /> Dar Baixa
-                  </Button>
+                    {(() => {
+                      const hoje = new Date();
+                      const vencimento = new Date(vale.dataVencimento);
+                      const diffDays = Math.ceil((vencimento.getTime() - hoje.getTime()) / (1000 * 3600 * 24));
+                      if (diffDays <= 3) {
+                        // Vence em breve → contatar cliente
+                        return (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-red-300 text-red-700 hover:bg-red-50"
+                            onClick={() => {
+                              setValeSelecionado(vale);
+                              setOpenModal(true);
+                            }}
+                          >
+                            Contatar Cliente
+                          </Button>
+                        );
+                      }
+                      return (
+                        <Button
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700"
+                          onClick={() => darBaixa(vale.id)}
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Dar Baixa
+                        </Button>
+                      );
+                    })()}
+                    {openModal && valeSelecionado && (
+                                      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+                    <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+                      <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                        Cliente já foi contatado?
+                      </h2>
+                      <p className="text-gray-600 mb-6">
+                        Deseja dar baixa no vale <strong>{valeSelecionado.id}</strong> e mover para processados?
+                      </p>
+                      <div className="flex justify-end gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setOpenModal(false);
+                            setValeSelecionado(null);
+                          }}
+                        >
+                          Não, fechar
+                        </Button>
+                        <Button
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                          onClick={confirmarContato}
+                        >
+                          Sim, dar baixa
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  )}
                 </div>
               </div>
               <div className="space-y-3">
@@ -220,7 +312,56 @@ const darBaixa = async (id: string) => {
                   <div className="bg-gray-50 p-3 rounded-lg"><span className="text-sm font-medium text-gray-600 block">📅 Vencimento</span><p className="font-semibold text-gray-800">{new Date(vale.dataVencimento).toLocaleDateString('pt-BR')}</p></div>
                   <div className="bg-gray-50 p-3 rounded-lg"><span className="text-sm font-medium text-gray-600 block">💰 Valor</span><p className="font-semibold text-green-600">{`R$ ${((vale.valorUnitario || 0) * (vale.quantidade || 0)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}</p></div>
                 </div>
-                {selectedVale === vale.id && (
+                  <Dialog open={!!modalVale} onOpenChange={() => setModalVale(null)}>
+                    <DialogContent className="max-w-3xl rounded-2xl p-6">
+                      {modalVale && (
+                        <>
+                          <DialogHeader>
+                            <DialogTitle className="text-2xl font-bold text-gray-800">
+                              Vale {modalVale.id} - {modalVale.cliente}
+                            </DialogTitle>
+                            <DialogDescription>
+                              Visualização detalhada do vale (tire print ou foto para registro).
+                            </DialogDescription>
+                          </DialogHeader>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <span className="block text-sm text-gray-600">🚛 Transportadora</span>
+                              <p className="font-semibold">{modalVale.transportadora}</p>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <span className="block text-sm text-gray-600">📦 Quantidade</span>
+                              <p className="font-semibold">{modalVale.quantidade} paletes</p>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <span className="block text-sm text-gray-600">📅 Vencimento</span>
+                              <p className="font-semibold">{new Date(modalVale.dataVencimento).toLocaleDateString("pt-BR")}</p>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <span className="block text-sm text-gray-600">💰 Valor</span>
+                              <p className="font-semibold text-green-600">
+                                {`R$ ${((modalVale.valorUnitario || 0) * (modalVale.quantidade || 0)).toLocaleString("pt-BR", {
+                                  minimumFractionDigits: 2,
+                                })}`}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <h4 className="font-semibold text-gray-800 mb-2">📝 Observações</h4>
+                            <p className="text-gray-700">{modalVale.observacoes || "Sem observações."}</p>
+                          </div>
+
+                          <DialogFooter className="mt-6 flex justify-end">
+                            <Button onClick={() => setModalVale(null)} variant="outline">
+                              Fechar
+                            </Button>
+                          </DialogFooter>
+                        </>
+                      )}
+                    </DialogContent>
+                  </Dialog> 
                   <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200 animate-fade-in">
                     <h4 className="font-semibold text-gray-800 mb-2">📝 Detalhes Adicionais</h4>
                     <p className="text-gray-700 mb-4"><strong>Observações:</strong> {vale.observacoes}</p>
@@ -230,7 +371,6 @@ const darBaixa = async (id: string) => {
                       <Button variant="outline" size="sm" className="hover:bg-white">📋 Copiar Dados</Button>
                     </div>
                   </div>
-                )}
               </div>
             </CardContent>
           </Card>
