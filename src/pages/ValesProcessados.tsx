@@ -8,6 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label"; // Importando o Label
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const ValesProcessados = () => {
   const { buscarVales, loading } = useVales(); // Usando o hook
@@ -16,6 +24,7 @@ const ValesProcessados = () => {
   const [filtro, setFiltro] = useState("");
   const [transportadoraFiltro, setTransportadoraFiltro] = useState("");
   const [selectedVale, setSelectedVale] = useState<string | null>(null);
+  const [modalVale, setModalVale] = useState<Vale | null>(null);
 
   useEffect(() => {
     const fetchVales = async () => {
@@ -134,9 +143,14 @@ const ValesProcessados = () => {
                   {`VP-${vale.id}`}
                 </Badge>
                 <div className="flex gap-3">
-                  <Button variant="outline" size="sm" onClick={() => visualizarVale(vale.id || '')} className="hover:bg-blue-50">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setModalVale(vale)}
+                    className="hover:bg-blue-50"
+                  >
                     <Eye className="w-4 h-4 mr-2" />
-                    {selectedVale === vale.id ? 'Ocultar' : 'Visualizar'}
+                    Visualizar
                   </Button>
                   <Button onClick={() => baixarPDF(vale)} className="bg-blue-600 hover:bg-blue-700 text-white">
                     <Download className="w-4 h-4 mr-2" />
@@ -151,12 +165,60 @@ const ValesProcessados = () => {
                   <div className="bg-gray-50 p-3 rounded-lg"><span className="text-sm font-medium text-gray-600 block">📅 Vencimento</span><p className="font-semibold text-gray-800">{new Date(vale.dataVencimento).toLocaleDateString('pt-BR')}</p></div>
                   <div className="bg-gray-50 p-3 rounded-lg"><span className="text-sm font-medium text-gray-600 block">💰 Valor</span><p className="font-semibold text-green-600">{`R$ ${((vale.valorUnitario || 0) * (vale.quantidade || 0)).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}</p></div>
               </div>
-              {selectedVale === vale.id && (
+              <Dialog open={!!modalVale} onOpenChange={() => setModalVale(null)}>
+                    <DialogContent className="max-w-3xl rounded-2xl p-6">
+                      {modalVale && (
+                        <>
+                          <DialogHeader>
+                            <DialogTitle className="text-2xl font-bold text-gray-800">
+                              Vale {modalVale.id} - {modalVale.cliente}
+                            </DialogTitle>
+                            <DialogDescription>
+                              Visualização detalhada do vale (tire print ou foto para registro).
+                            </DialogDescription>
+                          </DialogHeader>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <span className="block text-sm text-gray-600">🚛 Transportadora</span>
+                              <p className="font-semibold">{modalVale.transportadora}</p>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <span className="block text-sm text-gray-600">📦 Quantidade</span>
+                              <p className="font-semibold">{modalVale.quantidade} paletes</p>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <span className="block text-sm text-gray-600">📅 Vencimento</span>
+                              <p className="font-semibold">{new Date(modalVale.dataVencimento).toLocaleDateString("pt-BR")}</p>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <span className="block text-sm text-gray-600">💰 Valor</span>
+                              <p className="font-semibold text-green-600">
+                                {`R$ ${((modalVale.valorUnitario || 0) * (modalVale.quantidade || 0)).toLocaleString("pt-BR", {
+                                  minimumFractionDigits: 2,
+                                })}`}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <h4 className="font-semibold text-gray-800 mb-2">📝 Observações</h4>
+                            <p className="text-gray-700">{modalVale.observacoes || "Sem observações."}</p>
+                          </div>
+
+                          <DialogFooter className="mt-6 flex justify-end">
+                            <Button onClick={() => setModalVale(null)} variant="outline">
+                              Fechar
+                            </Button>
+                          </DialogFooter>
+                        </>
+                      )}
+                    </DialogContent>
+                  </Dialog> 
                   <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                       <h4 className="font-semibold text-gray-800 mb-2">📝 Detalhes Adicionais</h4>
                       <p className="text-gray-700"><strong>Observações:</strong> {vale.observacoes || "Nenhuma observação."}</p>
                   </div>
-              )}
             </CardContent>
           </Card>
         )) : (
