@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Filter, Eye, CheckCircle, Clock, AlertTriangle, Download } from "lucide-react";
 import { useVales, Vale } from "@/hooks/useVales"; // Hook Firebase
-import { deleteDoc, doc, setDoc } from "firebase/firestore";
+import { deleteDoc, doc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
   Dialog,
@@ -16,6 +16,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { uploadArquivo } from "@/lib/firebaseUpload";
 
 const BaixarVale = () => {
   const { buscarVales, baixarVale, loading: loadingHook } = useVales();
@@ -28,6 +29,8 @@ const BaixarVale = () => {
   const { toast } = useToast();
   const [valeSelecionado, setValeSelecionado] = useState<Vale | null>(null);
   const [openModal, setOpenModal] = useState(false);
+  const [uploading, setUploading] = useState<string | null>(null);
+  const [openModalUpload, setOpenModalUpload] = useState(false);
 
   useEffect(() => {
     const fetchVales = async () => {
@@ -273,9 +276,98 @@ const darBaixa = async (id: string) => {
                         </Button>
                       );
                     })()}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-blue-600 text-white hover:bg-blue-700"
+                      disabled={uploading === vale.id}
+                      onClick={() => {
+                        if (vale.arquivoBase64) {
+                          setValeSelecionado(vale); // define o vale para o modal
+                          setOpenModalUpload(true);        // abre o modal de confirmação
+                        } else {
+                          document.getElementById(`file-${vale.id}`)?.click();
+                        }
+                      }}
+                    >
+                      {uploading === vale.id ? "Enviando..." : "📤 Upload Arquivo"}
+                    </Button>
+                    <input
+                      id={`file-${vale.id}`}
+                      type="file"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+
+                        setUploading(vale.id);
+
+                        const reader = new FileReader();
+                        reader.onload = async () => {
+                          try {
+                            const base64 = reader.result as string;
+                            const valeRef = doc(db, "valescadastrados", vale.id);
+                            await updateDoc(valeRef, { arquivoBase64: base64, arquivoNome: file.name });
+
+                            toast({
+                              title: "✅ Upload concluído!",
+                              description: "Arquivo salvo no Firestore.",
+                            });
+                          } catch (err) {
+                            console.error(err);
+                            toast({
+                              title: "Erro",
+                              description: "Falha ao enviar o arquivo.",
+                              variant: "destructive",
+                            });
+                          } finally {
+                            setUploading(null);
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                    {openModalUpload && valeSelecionado && (
+                      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+                        <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+                          <h2 className="text-xl font-semibold mb-4">Substituir Arquivo?</h2>
+                          <p className="mb-6">Já existe um arquivo para este vale. Deseja substituí-lo?</p>
+                          <div className="flex justify-end gap-3">
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setOpenModal(false);
+                                setValeSelecionado(null);
+                              }}
+                            >
+                              Cancelar
+                            </Button>
+                            <Button
+                              className="bg-blue-600 text-white hover:bg-blue-700"
+                              onClick={() => {
+                                setOpenModal(false);
+                                document.getElementById(`file-${valeSelecionado.id}`)?.click();
+                              }}
+                            >
+                              Substituir
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {/* Download do arquivo em base64 */}
+                    {vale.arquivoBase64 && vale.arquivoNome && (
+                      <a
+                        href={vale.arquivoBase64.startsWith("data:") ? vale.arquivoBase64 : `data:application/octet-stream;base64,${vale.arquivoBase64}`}
+                        download={vale.arquivoNome}
+                        className="inline-block mt-0 px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+                      >
+                        📥 Baixar Arquivo
+                      </a>
+                    )}
                     {openModal && valeSelecionado && (
                                       <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-                    <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+                    <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg">
                       <h2 className="text-xl font-semibold text-gray-800 mb-4">
                         Cliente já foi contatado?
                       </h2>
@@ -291,6 +383,13 @@ const darBaixa = async (id: string) => {
                           }}
                         >
                           Não, fechar
+                        </Button>
+                        <Button>
+                          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=exemplo@email.com&su=Contato%20do%20site&body=Olá,%20quero%20saber%20mais..."
+                            target="_blank" 
+                            rel="noopener noreferrer">
+                            Enviar email ao cliente
+                          </a>
                         </Button>
                         <Button
                           className="bg-green-600 hover:bg-green-700 text-white"

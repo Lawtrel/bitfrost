@@ -156,6 +156,15 @@ const ValesProcessados = () => {
                     <Download className="w-4 h-4 mr-2" />
                     Baixar PDF
                   </Button>
+                  {vale.arquivoBase64 && vale.arquivoNome && (
+                      <a
+                        href={vale.arquivoBase64.startsWith("data:") ? vale.arquivoBase64 : `data:application/octet-stream;base64,${vale.arquivoBase64}`}
+                        download={vale.arquivoNome}
+                        className="inline-block mt-0 px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+                      >
+                        📥 Baixar Arquivo Enviado
+                      </a>
+                    )}
                 </div>
               </div>
               <h3 className="font-bold text-xl text-gray-800 mb-3">{vale.cliente}</h3>

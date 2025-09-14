@@ -17,6 +17,8 @@ export interface Vale {
   observacoes: string;
   quantidade: number;
   dataCriacao: number;
+  arquivoBase64?: string; // Para armazenar o arquivo em base64
+  arquivoNome?: string;   // Nome original do arquivo
 }
 
 export function useVales() {
