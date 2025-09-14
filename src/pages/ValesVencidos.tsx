@@ -196,7 +196,7 @@ const darBaixaVale = async () => {
                 <div className="flex flex-col gap-2"><Button variant="outline" size="sm" className="border-red-300 text-red-700 hover:bg-red-50" onClick={() => confirmarContato(vale)}>Contatar Cliente</Button><Button size="sm" className="bg-red-600 hover:bg-red-700">Ação Emergencial</Button></div>
                 {openModal && valeSelecionado && (
                   <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-                    <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+                    <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg">
                       <h2 className="text-xl font-semibold text-gray-800 mb-4">
                         Cliente já foi contatado?
                       </h2>
@@ -212,6 +212,13 @@ const darBaixaVale = async () => {
                           }}
                         >
                           Não, fechar
+                        </Button>
+                        <Button>
+                          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=exemplo@email.com&su=Contato%20do%20site&body=Olá,%20quero%20saber%20mais..."
+                            target="_blank" 
+                            rel="noopener noreferrer">
+                            Enviar email ao cliente
+                          </a>
                         </Button>
                         <Button
                           className="bg-green-600 hover:bg-green-700 text-white"
