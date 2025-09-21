@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es2020",                       /* Versão do ECMAScript de destino */
+    "module": "commonjs",                      /* Sistema de módulo */
+    "rootDir": "./src",                        /* Pasta raiz dos fontes */
+    "outDir": "./dist",                        /* Pasta de saída para os arquivos compilados */
+    "esModuleInterop": true,                   /* Essencial para compatibilidade de módulos */
+    "forceConsistentCasingInFileNames": true,  /* Garante consistência nos nomes de arquivos */
+    "strict": true,                            /* Habilita todas as verificações de tipo estritas */
+    "skipLibCheck": true,                      /* Pula a verificação de tipos de arquivos de declaração */
+    "types": ["jest", "node"]                  /* Inclui os tipos globais do Jest e Node */
+  },
+  "include": ["src/**/*", "tests/**/*"]        /* Pastas que o TypeScript deve compilar */
+}
