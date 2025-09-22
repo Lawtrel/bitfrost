@@ -41,7 +41,6 @@ describe('API de Vales - /api/vales', () => {
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
     
-    // TIPO ALTERADO PARA 'any'
     expect(response.body.some((vale: any) => vale.id === valeId)).toBe(true);
   });
 
