@@ -1,154 +1,146 @@
-import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
-import { Plus } from "lucide-react";
-import { FormCreatePalet } from "@/components/ui/form-create-palet";
-import { ResumoFinanceiro } from "@/components/ui/calculator-create-palet";
-import { PreviewVale } from "@/components/ui/preview-create-palet";
-import { AcoesRapidas } from "@/components/ui/quickactions-create-palet";
-import { db, auth } from "@/lib/firebase";
-import { collection, getDocs, addDoc, query, where } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+// src/pages/CriarVale.tsx
 
-export interface Cliente {
-  id: string;
-  nome: string;
-}
-export interface Transportadora {
-  id: string;
-  nome: string;
-}
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { createVale, getClientes, getTransportadoras, Cliente, Transportadora } from "@/services/api";
+import ClientSearch from "@/components/ClientSearch";
+import TransportadoraSearch from "@/components/TransportadoraSearch";
 
-type FormData = {
-  cliente: string;
-  transportadora: string;
-  quantidade: string;
-  dataVencimento: string;
-  observacoes: string;
-  valorUnitario: string;
-};
-
-const CriarVale = () => {
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-
-  const [formData, setFormData] = useState<FormData>({
+export default function CriarVale() {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
     cliente: "",
     transportadora: "",
-    quantidade: "0",
+    quantidade: "",
+    valorUnitario: "",
     dataVencimento: "",
     observacoes: "",
-    valorUnitario: "0",
   });
-
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [transportadoras, setTransportadoras] = useState<Transportadora[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchDados = async () => {
+    const fetchData = async () => {
       try {
-        // --- CORREÇÃO AQUI: buscando doc.data().nome ---
-        const qClientes = query(collection(db, "clientes"));
-        const clientesSnap = await getDocs(qClientes);
-        setClientes(clientesSnap.docs.map(doc => ({ id: doc.id, nome: doc.data().nome } as Cliente)));
-        
-        // --- CORREÇÃO AQUI: buscando doc.data().nome ---
-        const qTransportadoras = query(collection(db, "transportadoras"));
-        const transportadorasSnap = await getDocs(qTransportadoras);
-        setTransportadoras(transportadorasSnap.docs.map(doc => ({ id: doc.id, nome: doc.data().nome } as Transportadora)));
+        const [clientesRes, transportadorasRes] = await Promise.all([
+          getClientes(),
+          getTransportadoras()
+        ]);
+        setClientes(clientesRes.data);
+        setTransportadoras(transportadorasRes.data);
       } catch (error) {
-        toast({ title: "Erro ao carregar dados", variant: "destructive" });
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar clientes e transportadoras.",
+          variant: "destructive",
+        });
       }
     };
-    fetchDados();
+    fetchData();
   }, []);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+  
+  const handleClientSelect = (clientName: string) => {
+    setFormData((prev) => ({ ...prev, cliente: clientName }));
   };
 
-  const gerarVale = async () => {
-    if (!formData.cliente || !formData.transportadora || !formData.quantidade || !formData.dataVencimento) {
-      toast({ title: "⚠️ Campos obrigatórios", variant: "destructive" });
+  const handleTransportadoraSelect = (transportadoraName: string) => {
+    setFormData((prev) => ({ ...prev, transportadora: transportadoraName }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const { cliente, transportadora, quantidade, valorUnitario, dataVencimento } = formData;
+    if (!cliente || !transportadora || !quantidade || !valorUnitario || !dataVencimento) {
+      toast({
+        title: "Erro",
+        description: "Por favor, preencha todos os campos obrigatórios.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
       return;
     }
-    setLoading(true);
-    const dataVencimentoCorreta = new Date(formData.dataVencimento);
-    dataVencimentoCorreta.setDate(dataVencimentoCorreta.getDate() + 1 )
-    const valeData = {
-      cliente: formData.cliente,
-      transportadora: formData.transportadora,
-      quantidade: parseInt(formData.quantidade) || 0,
-      valorUnitario: parseFloat(formData.valorUnitario) || 0,
-      dataVencimento: dataVencimentoCorreta.toISOString(),
-      observacoes: formData.observacoes || "",
-      status: "acumulado",
-      dataCriacao: new Date().toISOString(), 
-    };
 
     try {
-      await addDoc(collection(db, "valescadastrados"), valeData);
-      toast({ title: "✅ Vale criado com sucesso!" });
-      setFormData({
-        cliente: "", transportadora: "", quantidade: "0", dataVencimento: "",
-        observacoes: "", valorUnitario: "0",
+      const valeParaSalvar = {
+        cliente,
+        transportadora,
+        quantidade: parseInt(quantidade),
+        valorUnitario: parseFloat(valorUnitario.replace(',', '.')),
+        dataVencimento: new Date(dataVencimento).toISOString(),
+        observacoes: formData.observacoes,
+        status: 'acumulado',
+      };
+
+      await createVale(valeParaSalvar);
+
+      toast({
+        title: "Sucesso!",
+        description: "O vale foi criado e enviado para aprovação.",
       });
+      navigate('/vales-acumulados');
     } catch (error) {
-      toast({ title: "❌ Erro ao criar vale", variant: "destructive" });
+      console.error("Erro ao criar vale:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível criar o vale. Tente novamente.",
+        variant: "destructive",
+      });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="p-6 space-y-6 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 text-white shadow-xl">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Criar Novo Vale Palete</h1>
-            <p className="text-blue-100">Gere novos vales palete de forma digital e eficiente</p>
-          </div>
-          <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center"><Plus className="w-8 h-8 text-white" /></div>
-        </div>
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <FormCreatePalet
-          formData={formData}
-          clientes={clientes}
-          transportadoras={transportadoras}
-          onInputChange={handleInputChange}
-          onSubmit={gerarVale}
-          isLoading={loading}
-        />
-        <div className="space-y-6">
-          <ResumoFinanceiro
-            quantidade={formData.quantidade}
-            valorUnitario={formData.valorUnitario}
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Criar Novo Vale</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <Label htmlFor="cliente">Cliente</Label>
+          <ClientSearch
+            clients={clientes}
+            onClientSelect={handleClientSelect}
           />
-          <PreviewVale
-            cliente={formData.cliente}
-            transportadora={formData.transportadora}
-            quantidade={formData.quantidade}
-            dataVencimento={formData.dataVencimento}
-            valorUnitario={formData.valorUnitario}
-            observacoes={formData.observacoes}
-          />
-          <AcoesRapidas clientePreenchido={!!formData.cliente} formData={formData} />
-          <Card className="shadow-lg border-0 bg-gradient-to-br from-yellow-50 to-orange-50 border-orange-200">
-            <CardContent className="p-6">
-              <h4 className="font-semibold text-orange-800 mb-3">💡 Dicas</h4>
-              <ul className="text-sm text-orange-700 space-y-2">
-                <li>• Configure lembretes automáticos</li>
-                <li>• Use QR Code para rastreamento</li>
-                <li>• Integre com o sistema de estoque</li>
-                <li>• Mantenha histórico completo</li>
-              </ul>
-            </CardContent>
-          </Card>
         </div>
-      </div>
+        <div>
+          <Label htmlFor="transportadora">Transportadora</Label>
+          <TransportadoraSearch
+            transportadoras={transportadoras}
+            onTransportadoraSelect={handleTransportadoraSelect}
+          />
+        </div>
+        <div>
+          <Label htmlFor="quantidade">Quantidade</Label>
+          <Input id="quantidade" type="number" value={formData.quantidade} onChange={handleChange} />
+        </div>
+        <div>
+          <Label htmlFor="valorUnitario">Valor Unitário</Label>
+          <Input id="valorUnitario" type="text" value={formData.valorUnitario} onChange={handleChange} />
+        </div>
+        <div>
+          <Label htmlFor="dataVencimento">Data de Vencimento</Label>
+          <Input id="dataVencimento" type="date" value={formData.dataVencimento} onChange={handleChange} />
+        </div>
+        <div>
+          <Label htmlFor="observacoes">Observações</Label>
+          <Textarea id="observacoes" value={formData.observacoes} onChange={handleChange} />
+        </div>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? 'Salvando...' : 'Salvar Vale'}
+        </Button>
+      </form>
     </div>
   );
-};
-
-export default CriarVale;
+}

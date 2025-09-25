@@ -1,20 +1,19 @@
+// src/hooks/useAuth.tsx
 import { useState, useEffect } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
 
-export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+// Esta é uma versão SIMPLIFICADA para substituir o hook do Firebase.
+// Em uma aplicação real, você usaria Context API ou Zustand/Redux
+// para gerenciar o estado de autenticação e o token JWT.
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
+export const useAuth = () => {
+  // Simula um usuário logado. Troque para `false` para simular um usuário deslogado.
+  const [isAuthenticated, setIsAuthenticated] = useState(true); 
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<{ email: string } | null>({ email: "admin@symbolon.com" });
 
-    // Limpa a inscrição quando o componente for desmontado
-    return () => unsubscribe();
-  }, []);
+  // Você pode adicionar funções de login/logout aqui que interagem com sua API
+  // const login = async (email, password) => { ... };
+  // const logout = () => { ... };
 
-  return { user, loading };
-}
+  return { user, loading, isAuthenticated };
+};

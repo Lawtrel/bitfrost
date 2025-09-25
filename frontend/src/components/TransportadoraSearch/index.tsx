@@ -1,81 +1,60 @@
-import { useState, useRef, useEffect } from "react";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-
-export interface Transportadora {
-  id: string;
-  nome: string;
-}
+// src/components/TransportadoraSearch/index.tsx
+import React, { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Transportadora } from '@/services/api';
 
 interface TransportadoraSearchProps {
   transportadoras: Transportadora[];
-  onTransportadoraSelect: (transportadora: Transportadora) => void;
+  onTransportadoraSelect: (transportadoraName: string) => void;
 }
 
-const TransportadoraSearch = ({ transportadoras, onTransportadoraSelect }: TransportadoraSearchProps) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [results, setResults] = useState<Transportadora[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (transportadoras) {
-      setResults(transportadoras);
-    }
-  }, [transportadoras]);
+const TransportadoraSearch: React.FC<TransportadoraSearchProps> = ({ transportadoras, onTransportadoraSelect }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredTransportadoras, setFilteredTransportadoras] = useState<Transportadora[]>([]);
+  const [isListVisible, setIsListVisible] = useState(false);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value;
     setSearchTerm(term);
     if (term) {
-      const filtered = (transportadoras || []).filter(transp =>
-        transp.nome && typeof transp.nome === 'string' && transp.nome.toLowerCase().includes(term.toLowerCase())
+      setFilteredTransportadoras(
+        transportadoras.filter(t =>
+          t.nome.toLowerCase().includes(term.toLowerCase())
+        )
       );
-      setResults(filtered);
+      setIsListVisible(true);
     } else {
-      setResults(transportadoras || []);
+      setIsListVisible(false);
     }
   };
-  
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+
+  const handleSelect = (transportadora: Transportadora) => {
+    setSearchTerm(transportadora.nome);
+    onTransportadoraSelect(transportadora.nome);
+    setIsListVisible(false);
+  };
 
   return (
-    <div className="space-y-2 relative" ref={containerRef}>
-      <Label className="text-sm font-medium text-gray-700">🚛 Transportadora *</Label>
+    <div className="relative">
       <Input
-        placeholder="Pesquisar transportadora..."
+        type="text"
         value={searchTerm}
         onChange={handleSearch}
-        onFocus={() => setIsOpen(true)}
-        className="h-12 border-2 focus:border-blue-500"
-        autoComplete="off"
+        onFocus={() => searchTerm && setIsListVisible(true)}
+        placeholder="Digite para buscar uma transportadora..."
       />
-      {isOpen && (
-        <div className="absolute left-0 right-0 mt-1 bg-white border rounded-md shadow-lg z-50 max-h-48 overflow-auto">
-          {results.length > 0 ? results.map((transportadora) => (
-            <div
-              key={transportadora.id}
-              className="cursor-pointer p-2 hover:bg-gray-100 rounded"
-              onClick={() => {
-                onTransportadoraSelect(transportadora);
-                // --- CORREÇÃO AQUI ---
-                // Garante que o valor seja sempre uma string
-                setSearchTerm(transportadora.nome || "");
-                setIsOpen(false);
-              }}
+      {isListVisible && filteredTransportadoras.length > 0 && (
+        <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-y-auto">
+          {filteredTransportadoras.map(t => (
+            <li
+              key={t.id}
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleSelect(t)}
             >
-              {transportadora.nome || 'Transportadora sem nome'}
-            </div>
-          )) : <div className="p-2 text-sm text-gray-500">Nenhuma transportadora encontrada.</div>}
-        </div>
+              {t.nome}
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
