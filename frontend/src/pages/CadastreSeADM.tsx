@@ -5,10 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-
-import { auth, db } from "@/lib/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { setDoc, doc, getDocs, collection } from "firebase/firestore";
+import { createUsuario, getUsuariosByEmail, getUsuariosByRole } from "../services/api";
 
 export default function Cadastro() {
   const { toast } = useToast();
@@ -62,7 +59,7 @@ export default function Cadastro() {
       });
       return;
     } 
-    if (form.role === "") {
+    if (form.role === "" || form.role === "selecione") {
       toast({
         title: "❌ Selecione um cargo",
         description: "Você deve selecionar a sua função",
@@ -75,13 +72,10 @@ export default function Cadastro() {
     setLoading(true);
     
     try {
-    // 🔹 Bloquear cadastro de ADM se já existir
+     // 🔒 Bloqueio de múltiplos ADMs
     if (form.role === "adm") {
-      const adminsSnapshot = await getDocs(collection(db, "admins"));
-      const existeADM = adminsSnapshot.docs.some(
-        (doc) => doc.data().role === "adm"
-      );
-      if (existeADM) {
+      const { data: admins } = await getUsuariosByRole("adm");
+      if (admins.length > 0) {
         toast({
           title: "❌ Ação não permitida",
           description: "Já existe um administrador cadastrado.",
@@ -90,58 +84,50 @@ export default function Cadastro() {
         return;
       }
     }
-  }catch {
-
-  }
-    try {
-      // Passo 1: Criar o usuário no Firebase Authentication
-      // Esta função já verifica se o e-mail está em uso e lança um erro se estiver.
-      const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.senha);
-      const user = userCredential.user;
-
-      // Passo 2: Se o usuário for criado com sucesso, salvar os dados adicionais no Firestore
-      // Usaremos o UID do usuário como ID do documento para manter a consistência.
-      const novoUsuario = {
-        uid: user.uid,
-        nome: form.nome,
-        email: form.email,
-        role: form.role,
-        status: "pendente" // Novos usuários sempre começam como pendentes
-      };
-
-      // setDoc cria ou substitui um documento. Usamos doc() para especificar o ID do documento.
-      await setDoc(doc(db, "admins", user.uid), novoUsuario);
-
+    const { data: usuariosExistentes } = await getUsuariosByEmail(form.email);
+    if (usuariosExistentes.length > 0) {
       toast({
-        title: "✅ Cadastro enviado",
-        description: "Aguardando aprovação do administrador.",
+        title: "❌ Email em uso",
+        description: "Já existe um usuário cadastrado com este email.",
+        variant: "destructive",
       });
-
-      // Limpa o formulário e redireciona para o login
-      setForm({ nome: "", email: "", senha: "", confirmarSenha: "", role: "", status:"" });
-      setTimeout(() => navigate("/login"), 2000);
-
-    } catch (error: any) {
-      console.error(error);
-      let description = "Não foi possível salvar o cadastro. Tente novamente.";
-
-      // Fornece feedback específico com base nos erros do Firebase
-      if (error.code === 'auth/email-already-in-use') {
-        description = "Este e-mail já está em uso por outra conta.";
-      } else if (error.code === 'auth/weak-password') {
-        description = "A senha é muito fraca. Use pelo menos 6 caracteres.";
-      } else if (error.code === 'auth/invalid-email') {
-        description = "O formato do e-mail é inválido.";
-      }
-
-      toast({
-        title: "❌ Erro ao cadastrar",
-        description: description,
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+      return;
     }
+    await createUsuario({
+      nome: form.nome,
+      email: form.email,
+      senha: form.senha,
+      role: form.role,
+      status: "pendente",
+    });
+
+    toast({
+      title: "✅ Sucesso",
+      description: "Cadastro realizado! Aguarde aprovação do administrador.",
+    });
+    setForm({
+      nome: "",
+      email: "",
+      senha: "",
+      confirmarSenha: "",
+      role: "",
+      status: "",
+    });
+    setTimeout(() => navigate("/login"), 2000);
+  }catch (error) {
+    console.error(error);
+    const erroMsg =
+      error.response?.data?.message ||
+      "Erro inesperado ao cadastrar. Tente novamente.";
+
+    toast({
+      title: "❌ Erro ao cadastrar",
+      description: erroMsg,
+      variant: "destructive",
+    });
+  } finally { 
+    setLoading(false);
+  }
   };
 
   return (

@@ -42,4 +42,6 @@ model Vale {
   dataCriacao    DateTime  @default(now())
   observacoes    String?
   status         String
+  arquivoBase64  String? @db.LongText
+  arquivoNome    String?
 }

@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { deleteUsuario, getUsuariosByStatus, updateUsuariosByRole, updateUsuariosByStatus } from "@/services/api";
 
 
 interface Usuario {
@@ -22,16 +21,26 @@ export default function AprovarAdms() {
   const fetchUsuarios = async () => {
     try {
       // Busca usuários com status 'pendente'
-      const pendentesQuery = query(collection(db, "admins"), where("status", "==", "pendente"));
-      const pendentesSnapshot = await getDocs(pendentesQuery);
-      const dataPendentes = pendentesSnapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as Usuario));
-      setPendentes(dataPendentes);
+      const pendentes = await getUsuariosByStatus("pendente");
+      const dataPendentes = pendentes.data.map((user: any) => ({
+        uid: user.id, 
+        nome: user.nome,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      }));
+      setPendentes(dataPendentes.filter((user: Usuario) => user.status === "pendente"));
 
       // Busca usuários com status 'ativo'
-      const ativosQuery = query(collection(db, "admins"), where("status", "==", "ativo"));
-      const ativosSnapshot = await getDocs(ativosQuery);
-      const dataAtivos = ativosSnapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as Usuario));
-      setAtivos(dataAtivos);
+      const ativos =  await getUsuariosByStatus("ativo");;
+      const dataAtivos = pendentes.data.map((user: any) => ({
+        uid: user.id, 
+        nome: user.nome,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      }));
+      setAtivos(dataAtivos.filter((user: Usuario) => user.status === "ativo"));
 
     } catch (error) {
       console.error("Erro ao buscar usuários:", error);
@@ -45,8 +54,7 @@ export default function AprovarAdms() {
 
   const aprovarUsuario = async (user: Usuario) => {
     try {
-      const userDocRef = doc(db, "admins", user.uid);
-      await updateDoc(userDocRef, { status: "ativo" });
+      await updateUsuariosByStatus(user.uid, "ativo" );
       toast({ title: "✅ Aprovado", description: `${user.nome} agora está ativo.` });
       fetchUsuarios(); // Re-busca os usuários para atualizar as listas
     } catch {
@@ -57,8 +65,7 @@ export default function AprovarAdms() {
 
   const desaprovarUsuario = async (user: Usuario) => {
     try {
-      const userDocRef = doc(db, "admins", user.uid);
-      await deleteDoc(userDocRef);
+      await deleteUsuario(user.uid);
       toast({ title: "🗑️ Removido", description: `${user.nome} foi removido.` });
       fetchUsuarios(); // Re-busca os usuários para atualizar as listas
     } catch {
@@ -68,9 +75,8 @@ export default function AprovarAdms() {
 
   const promoverConsultor = async (user: Usuario) => {
     try {
-      const userDocRef = doc(db, "admins", user.uid);
-      await updateDoc(userDocRef, { role: "adm" });
-      toast({ title: "🚀 Promovido", description: `${user.nome} agora é administrador.` });
+      await updateUsuariosByRole(user.uid, "supervisor" );
+      toast({ title: "🚀 Promovido", description: `${user.nome} agora é supervisor.` });
       fetchUsuarios(); // Re-busca os usuários para atualizar as listas
     } catch {
       toast({ title: "Erro", description: "Falha ao promover", variant: "destructive" });

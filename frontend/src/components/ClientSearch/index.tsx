@@ -5,7 +5,7 @@ import { Cliente } from '../../services/api'; // Importa a interface
 
 interface ClientSearchProps {
   clients: Cliente[];
-  onClientSelect: (clientName: string) => void;
+  onClientSelect: (client: Cliente) => void;
 }
 
 const ClientSearch: React.FC<ClientSearchProps> = ({ clients, onClientSelect }) => {
@@ -30,7 +30,7 @@ const ClientSearch: React.FC<ClientSearchProps> = ({ clients, onClientSelect }) 
 
   const handleSelectClient = (client: Cliente) => {
     setSearchTerm(client.nome);
-    onClientSelect(client.nome);
+    onClientSelect(client);
     setIsListVisible(false);
   };
 

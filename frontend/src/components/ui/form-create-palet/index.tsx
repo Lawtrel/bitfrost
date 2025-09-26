@@ -91,8 +91,8 @@ export function FormCreatePalet({
                 <Label>Cliente *</Label>
                 {/* O componente de busca agora chama a função correta */}
                 <ClienteSearch 
-                  clientes={clientes}
-                  onClientSelect={handleClienteSelect}
+                  clients={clientes}
+                  onClientSelect={ handleClienteSelect}
                 />
               </div>
               <div>

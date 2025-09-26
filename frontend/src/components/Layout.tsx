@@ -45,7 +45,6 @@ const Layout = () => {
 
     useEffect(() => {
     const usuarioString = localStorage.getItem("usuario");
-    console.log(usuarioString)
 
     if (usuarioString) {
       try {
@@ -58,9 +57,6 @@ const Layout = () => {
         if(usuarioRole === "adm"){
           setIsAdm(true);
         }
-        
-        console.log("Role do usuário:", usuarioRole);
-        console.log("É admin?", isAdm);
       } catch (error) {
         console.error("Erro ao converter dados do usuário:", error);
       }

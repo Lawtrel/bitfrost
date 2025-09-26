@@ -1,60 +1,123 @@
-// src/pages/LoginADM.tsx
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+// src/pages/Login.tsx
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { loginUsuario } from "@/services/api";
 
-export default function LoginADM() {
+export default function Login() {
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const [form, setForm] = useState({ email: "", senha: "" });
+  const [loading, setLoading] = useState(false);
 
-    // --- LÓGICA DE LOGIN NA API (FUTURO) ---
-    // try {
-    //   const { token } = await loginApi(email, password);
-    //   localStorage.setItem('authToken', token);
-    //   navigate('/dashboard');
-    // } catch (error) {
-    //   toast({ title: "Erro de Login", description: "Credenciais inválidas.", variant: "destructive"});
-    // } finally {
-    //   setIsLoading(false);
-    // }
-    
-    // --- LÓGICA SIMULADA POR ENQUANTO ---
-    if (email === "admin@symbolon.com" && password === "admin") {
-      toast({ title: "Login bem-sucedido!" });
-      navigate('/dashboard');
-    } else {
-       toast({ title: "Erro de Login", description: "Credenciais inválidas.", variant: "destructive"});
-    }
-    setIsLoading(false);
+  const handleChange = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleLogin = async () => {
+  if (!form.email || !form.senha) {
+    toast({
+      title: "❌ Campos vazios",
+      description: "Por favor, preencha o email e a senha.",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    // Chama sua API para fazer login
+    const response = await loginUsuario(form.email, form.senha);
+    const usuario = response.data;
+
+    if (usuario.status !== "ativo") {
+      toast({
+        title: "⏳ Aguardando aprovação",
+        description: "Seu acesso ainda não foi liberado pelo administrador master.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Armazena os dados do usuário
+    localStorage.setItem("usuario", JSON.stringify(usuario));
+    localStorage.setItem("admId", usuario.id); // ou qualquer campo que represente o ID
+
+    toast({
+      title: "✅ Login realizado",
+      description: `Bem-vindo, ${usuario.nome}!`,
+    });
+
+    navigate("/dashboard");
+  } catch (error) {
+    console.error(error);
+    const message =
+      error?.response?.data?.error || "Erro ao tentar fazer login.";
+
+    toast({
+      title: "❌ Erro de login",
+      description: message,
+      variant: "destructive",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center">Login Administrador</h1>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 px-4">
+      <Card className="w-full max-w-md shadow-xl border-0">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl text-blue-800 font-bold">
+            Login de Colaborador
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="space-y-2">
+            <Label>Email Corporativo</Label>
+            <Input
+              type="email"
+              placeholder="exemplo@heineken.com"
+              value={form.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+            />
           </div>
-          <div>
-            <Label htmlFor="password">Senha</Label>
-            <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+
+          <div className="space-y-2">
+            <Label>Senha</Label>
+            <Input
+              type="password"
+              placeholder="Digite sua senha"
+              value={form.senha}
+              onChange={(e) => handleChange("senha", e.target.value)}
+            />
           </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Entrando..." : "Entrar"}
+
+          <Button
+            onClick={handleLogin}
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold mt-4"
+          >
+            {loading ? "Entrando..." : "Entrar"}
           </Button>
-        </form>
-      </div>
+          <p className="text-center text-sm text-gray-600">
+              Ainda não tem uma conta?{" "}
+              <a
+                href="/"
+                className="text-blue-600 hover:underline font-medium"
+              >
+                Cadastre-se
+              </a>
+            </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

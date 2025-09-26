@@ -5,6 +5,7 @@ import {
   getValeById,
   updateVale,
   deleteVale,
+  uploadArquivoVale,
 } from '../controllers/valeController';
 
 const router = Router();
@@ -23,5 +24,9 @@ router.put('/:id', updateVale);
 
 // Rota para deletar um vale (DELETE /api/vales/algum-id)
 router.delete('/:id', deleteVale);
+
+// Rota específica para upload de arquivo
+router.put('/:id', uploadArquivoVale);
+
 
 export default router;

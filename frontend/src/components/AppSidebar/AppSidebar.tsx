@@ -21,8 +21,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar-button/sidebar";
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getVales } from "@/services/api";
+
 
 const menuItems = [
   {
@@ -63,7 +63,7 @@ const menuItems = [
   },
   {
     title: "Apontamentos",
-    url: "/dashboard/apontamento",
+    url: "/dashboard/apontamento-vale",
     icon: Calendar,
     description: "Registrar movimentações",
     color: "text-orange-600",
@@ -120,22 +120,15 @@ export function AppSidebar() {
     const fetchStatus = async () => {
       try {
         // 🔹 Vales ativos (em valescadastrados, por exemplo)
-        const ativosSnap = await getDocs(collection(db, "valescadastrados"));
-        const ativosCount = ativosSnap.size;
+        const data = await getVales();
+        const ativosCount = data.data.filter((vale) => vale.status === "acumulado").length;
 
         // 🔹 Vales processados hoje (em valesprocessados, filtrando por data)
         const hoje = new Date().toISOString().split("T")[0];
-        const processadosSnap = await getDocs(
-          query(
-            collection(db, "valesprocessados"),
-            where("dataProcessado", "==", hoje) // precisa ter esse campo salvo
-          )
-        );
-        const processadosCount = processadosSnap.size;
+        const processadosCount = data.data.filter((vale) => vale.status === "processado").length;
 
         // 🔹 Vales vencidos
-        const vencidosSnap = await getDocs(collection(db, "valesvencidos"));
-        const vencidosCount = vencidosSnap.size;
+        const vencidosCount = data.data.filter((vale) => vale.status === "vencido").length;
 
         setStatus({
           ativos: ativosCount,
