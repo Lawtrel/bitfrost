@@ -55,13 +55,16 @@ export const getValeById = async (req: Request, res: Response) => {
 export const updateVale = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { status } = req.body; // Exemplo: atualizando apenas o status
+    const { status, arquivoBase64, arquivoNome } = req.body;
     const updatedVale = await prisma.vale.update({
       where: { id },
-      data: { status },
+      data: { status, arquivoBase64, arquivoNome },
     });
     res.status(200).json(updatedVale);
-  } catch (error) {
+  } catch (error: any) {
+    console.error("❌ Erro completo:", error);               // imprime o erro inteiro
+    console.error("❌ Erro mensagem:", error.message);       // imprime a mensagem de erro
+    console.error("❌ Erro stack:", error.stack);            // imprime a stack trace (se existir)
     res.status(500).json({ error: 'Nao foi possivel atualizar o vale.' });
   }
 };
@@ -76,5 +79,36 @@ export const deleteVale = async (req: Request, res: Response) => {
     res.status(204).send(); // 204 No Content - sucesso sem corpo de resposta
   } catch (error) {
     res.status(500).json({ error: 'Nao foi possivel deletar o vale.' });
+  }
+};
+
+// Upload de arquivo para um vale
+export const uploadArquivoVale = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  console.log("REQ BODY:", req.body);
+  const { arquivoBase64, arquivoNome } = req.body;
+
+  try {
+    const valeExistente = await prisma.vale.findUnique({
+      where: { id },
+    });
+    if (!valeExistente) {
+      return res.status(404).json({ error: "Vale não encontrado." });
+    }
+
+    const updated = await prisma.vale.update({
+      where: { id },
+      data: {
+        arquivoBase64,
+        arquivoNome,
+      },
+    });
+
+    res.status(200).json(updated);
+  } catch (error: any) {
+    console.error("❌ Erro completo:", error);               // imprime o erro inteiro
+    console.error("❌ Erro mensagem:", error.message);       // imprime a mensagem de erro
+    console.error("❌ Erro stack:", error.stack);            // imprime a stack trace (se existir)
+    res.status(500).json({ error: error.message || "Erro interno" });
   }
 };

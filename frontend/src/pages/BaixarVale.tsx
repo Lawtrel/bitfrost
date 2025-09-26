@@ -5,9 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Filter, Eye, CheckCircle, Clock, AlertTriangle, Download } from "lucide-react";
-import { useVales, Vale } from "@/hooks/useVales"; // Hook Firebase
-import { deleteDoc, doc, setDoc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import {
   Dialog,
   DialogContent,
@@ -16,10 +13,11 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { uploadArquivo } from "@/lib/firebaseUpload";
+import { getVales, updateArquivoVale, updateValeStatus, Vale } from "@/services/api";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const BaixarVale = () => {
-  const { buscarVales, baixarVale, loading: loadingHook } = useVales();
   const [vales, setVales] = useState<Vale[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,70 +30,86 @@ const BaixarVale = () => {
   const [uploading, setUploading] = useState<string | null>(null);
   const [openModalUpload, setOpenModalUpload] = useState(false);
 
-  useEffect(() => {
-    const fetchVales = async () => {
-      setLoading(true);
-      setError(null);
+  const fetchVales = async () => {
+  setLoading(true);
+  setError(null);
+  try {
+    // 1. Buscar todos os vales via API
+    const response = await getVales();
+    const todosVales = response.data; // Vale[]
+    console.log("Todos os vales:", todosVales);
+
+    // 2. Filtrar só os “cadastrados” (ou “acumulado”, conforme seu status)
+    const data = todosVales.filter((vale) => vale.status === "acumulado");
+    console.log("Vales com status acumulado:", data);
+
+    // 3. Verificar vencidos: se a data de vencimento já passou
+    const hoje = new Date();
+
+    // map para “atualizar status” localmente
+    const valesAtivos = data.map(v => {
+      const venc = new Date(v.dataVencimento);
+      const novoStatus = venc < hoje ? "vencido" : v.status;
+      return {
+        ...v,
+        status: novoStatus,
+      };
+    });
+
+    const valesVencidos = valesAtivos.filter(v => v.status === "vencido");
+    const valesPendentes = valesAtivos.filter(v => v.status !== "vencido");
+
+    // 4. Atualizar no backend para os vales vencidos
+    for (const vale of valesVencidos) {
       try {
-        // Buscar vales pendentes do Firebase
-        const data: Vale[] = await buscarVales("valescadastrados", "acumulado");
-
-        // Atualizar status vencido se a data passou
-        const hoje = new Date();
-        const valesAtivos = data.map(v => ({
-          ...v,
-          status: new Date(v.dataVencimento) < hoje ? "vencido" : v.status || "acumulado",
-        }));
-        const valesVencidos = valesAtivos.filter(vale => vale.status === "vencido");
-        const valesPendentes =  valesAtivos.filter(vale => vale.status !== "vencido");
-
-        for (const vale of valesVencidos) {
-          try {
-            // Cria/atualiza o vale com ID definido
-            await setDoc(doc(db, "valesvencidos", vale.id), vale);
-
-            // Se não houver erro, remove da coleção original
-            await deleteDoc(doc(db, "valescadastrados", vale.id));
-
-            console.log(`Vale ${vale.id} movido para valesvencidos com sucesso!`);
-          } catch (error) {
-            console.error(`Erro ao mover o vale ${vale.id}:`, error);
-          }
-        }
-
-        setVales(valesPendentes);
-        console.log(valesVencidos);
-      } catch (e) {
-        console.error(e);
-        setError("Falha ao carregar os vales do Firebase.");
-      } finally {
-        setLoading(false);
+        await updateValeStatus(vale.id, "vencido");
+        console.log(`Vale ${vale.id} atualizado para vencido via API`);
+      } catch (err) {
+        console.error(`Erro ao atualizar status do vale ${vale.id}:`, err);
       }
-    };
+    }
 
-    fetchVales();
-  }, []);
+    // 5. Ajustar estado local com vales que não são vencidos
+    setVales(valesPendentes);
+
+  } catch (e) {
+    console.error("Erro ao buscar dados do Dashboard:", e);
+    setError("Falha ao carregar os vales.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Uso dentro de useEffect
+useEffect(() => {
+  fetchVales();
+}, []);
+
 
 const darBaixa = async (id: string) => {
   try {
-    // Busca o vale na lista atual
+    // 1. Encontrar o vale na lista local
     const valeParaBaixar = vales.find(vale => vale.id === id);
     if (!valeParaBaixar) {
-      toast({ title: "Erro", description: "Vale não encontrado", variant: "destructive" });
+      toast({
+        title: "Erro",
+        description: "Vale não encontrado",
+        variant: "destructive",
+      });
       return;
     }
 
-    // Envia para processados e remove dos cadastrados no Firebase
-    await baixarVale(id);
+    // 2. Chamar a API para atualizar o status para "processado"
+    await updateValeStatus(id, "processado");
 
-    // Atualiza o estado local removendo o vale processado
+    // 3. Atualizar o estado local removendo ele dos pendentes
     setVales(old => old.filter(vale => vale.id !== id));
 
     toast({
       title: "✅ Vale processado com sucesso!",
       description: `Vale ${id} foi baixado e removido da lista pendente.`,
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
     toast({
       title: "Erro",
@@ -143,7 +157,7 @@ const darBaixa = async (id: string) => {
 
     try {
       // Envia para processados e remove dos cadastrados
-      await baixarVale(valeSelecionado.id);
+      await darBaixa(valeSelecionado.id);
 
       setVales(old => old.filter(v => v.id !== valeSelecionado.id));
       setOpenModal(false);
@@ -160,6 +174,32 @@ const darBaixa = async (id: string) => {
         variant: "destructive",
       });
     }
+  };
+
+  const baixarPDF = (vale: Vale) => {
+    const doc = new jsPDF();
+    const dataVencimentoFormatada = vale.dataVencimento
+        ? new Date(vale.dataVencimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+        : '-';
+
+    doc.setFontSize(18);
+    doc.text(`Detalhes do Vale - VP-${vale.id}`, 14, 22);
+
+    autoTable(doc, {
+      startY: 30,
+      head: [["Campo", "Valor"]],
+      body: [
+        ["Cliente", vale.cliente || "-"],
+        ["Transportadora", vale.transportadora || "-"],
+        ["Quantidade", `${vale.quantidade || 0} paletes`],
+        ["Valor Unitário", `R$ ${vale.valorUnitario?.toFixed(2) || '0.00'}`],
+        ["Data de Vencimento", dataVencimentoFormatada],
+        ["Observações", vale.observacoes || "-"]
+      ],
+      theme: 'striped'
+    });
+
+    doc.save(`vale-${vale.id}.pdf`);
   };
 
   return (
@@ -306,15 +346,17 @@ const darBaixa = async (id: string) => {
                         reader.onload = async () => {
                           try {
                             const base64 = reader.result as string;
-                            const valeRef = doc(db, "valescadastrados", vale.id);
-                            await updateDoc(valeRef, { arquivoBase64: base64, arquivoNome: file.name });
+                            await updateArquivoVale(vale.id, base64, file.name);
 
                             toast({
                               title: "✅ Upload concluído!",
-                              description: "Arquivo salvo no Firestore.",
+                              description: "Arquivo salvo no Banco de daos.",
                             });
                           } catch (err) {
-                            console.error(err);
+                            console.error("Erro ao enviar arquivo:", err);
+                            if (err.response) {
+                              console.error("Resposta do servidor:", err.response.data);
+                            }
                             toast({
                               title: "Erro",
                               description: "Falha ao enviar o arquivo.",
@@ -465,7 +507,7 @@ const darBaixa = async (id: string) => {
                     <h4 className="font-semibold text-gray-800 mb-2">📝 Detalhes Adicionais</h4>
                     <p className="text-gray-700 mb-4"><strong>Observações:</strong> {vale.observacoes}</p>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="hover:bg-white"><Download className="w-4 h-4 mr-2"/> Baixar PDF</Button>
+                      <Button variant="outline" size="sm" className="hover:bg-white" onClick={() => baixarPDF(vale)}><Download className="w-4 h-4 mr-2"/> Baixar PDF</Button>
                       <Button variant="outline" size="sm" className="hover:bg-white">📧 Enviar Email</Button>
                       <Button variant="outline" size="sm" className="hover:bg-white">📋 Copiar Dados</Button>
                     </div>

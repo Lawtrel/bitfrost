@@ -5,7 +5,7 @@ import { Transportadora } from '@/services/api';
 
 interface TransportadoraSearchProps {
   transportadoras: Transportadora[];
-  onTransportadoraSelect: (transportadoraName: string) => void;
+  onTransportadoraSelect: (transportadora: Transportadora) => void;
 }
 
 const TransportadoraSearch: React.FC<TransportadoraSearchProps> = ({ transportadoras, onTransportadoraSelect }) => {
@@ -30,7 +30,7 @@ const TransportadoraSearch: React.FC<TransportadoraSearchProps> = ({ transportad
 
   const handleSelect = (transportadora: Transportadora) => {
     setSearchTerm(transportadora.nome);
-    onTransportadoraSelect(transportadora.nome);
+    onTransportadoraSelect(transportadora);
     setIsListVisible(false);
   };
 
