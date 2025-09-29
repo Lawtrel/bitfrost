@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -42,6 +42,6 @@ model Vale {
   dataCriacao    DateTime  @default(now())
   observacoes    String?
   status         String
-  arquivoBase64  String? @db.LongText
+  arquivoBase64  String?
   arquivoNome    String?
 }
