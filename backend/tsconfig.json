@@ -10,5 +10,10 @@
     "skipLibCheck": true,                      /* Pula a verificação de tipos de arquivos de declaração */
     "types": ["jest", "node"]                  /* Inclui os tipos globais do Jest e Node */
   },
-  "include": ["src/**/*", "tests/**/*"]        /* Pastas que o TypeScript deve compilar */
+  "include": ["src/**/*", "tests/**/*"],        /* Pastas que o TypeScript deve compilar */
+  "exclude": [
+    "node_modules",
+    "tests"
+  ]
+
 }
