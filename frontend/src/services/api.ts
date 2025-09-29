@@ -3,7 +3,7 @@ import axios from 'axios';
 // Define a URL base da nossa API.
 // Durante o desenvolvimento, será http://localhost:3001
 const api = axios.create({
-  baseURL: 'http://localhost:3001/api', 
+  baseURL: import.meta.env.VITE_API_URL, 
 });
 
 // --- TIPOS (para ajudar o TypeScript) ---
