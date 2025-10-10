@@ -187,9 +187,10 @@ const Dashboard = () => {
   const taxaProcessamento = totalVales > 0 
     ? ((processadosAtual / totalVales) * 100).toFixed(1) 
     : "0.0";
-  const papelTotal = valesProcessados.length * 3; // 3 folhas por vale 
-  const papelAtual = valesProcessados.length; // 1 folha por vale
-  const porcentagemPapel = papelAtual * 100 / papelTotal; // porcentagem de papel usado
+    const papelAtual = valesProcessados.length; // 1 folha por vale
+    const papelEconomizado = (papelAtual * 3) - papelAtual;
+    const papelTotalSemSistema = valesProcessados.length * 3; // 3 folhas por vale sem o sistema 
+  const porcentagemPapel = papelEconomizado* 100 / papelTotalSemSistema; // porcentagem de papel usado
 
   return (
     <div className="p-6 space-y-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
