@@ -8,8 +8,6 @@ import { useNavigate } from "react-router-dom";
 import {
   createCliente,
   createTransportadora,
-  getClientes,
-  getTransportadoras,
 } from "@/services/api";
 
 export default function CadastreSeUser() {
@@ -59,21 +57,9 @@ export default function CadastreSeUser() {
           title: "✅ Cliente cadastrado",
           description: "Cliente cadastrado com sucesso.",
         });
-        navigate("/dashboard/cadastre-se");
+        navigate("/dashboard/aprova-adm");
         setForm({ nome: "", tipo: "cliente" });
       } else {
-        const transportadoras = await getTransportadoras();
-        const existe = transportadoras.data.some(
-          (t: any) => t.nome.toLowerCase() === form.nome.toLowerCase()
-        );
-
-        if (existe) {
-          toast({
-            title: "❌ Transportadora já cadastrada",
-            description: "Já existe uma transportadora com esse nome.",
-            variant: "destructive",
-          });
-        } else {
           await createTransportadora(form.nome);
           toast({
             title: "✅ Transportadora cadastrada",
@@ -81,7 +67,6 @@ export default function CadastreSeUser() {
           });
           navigate("/dashboard/aprova-adm");
           setForm({ nome: "", tipo: "cliente" });
-        }
       }
     } catch (error) {
       console.error("Erro ao cadastrar:", error);

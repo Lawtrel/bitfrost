@@ -124,7 +124,6 @@ export function AppSidebar() {
         const ativosCount = data.data.filter((vale) => vale.status === "acumulado").length;
 
         // 🔹 Vales processados hoje (em valesprocessados, filtrando por data)
-        const hoje = new Date().toISOString().split("T")[0];
         const processadosCount = data.data.filter((vale) => vale.status === "processado").length;
 
         // 🔹 Vales vencidos
@@ -242,7 +241,7 @@ export function AppSidebar() {
                   <span className="font-bold text-green-600">{status.ativos}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Processados Hoje:</span>
+                  <span className="text-gray-600">Processados:</span>
                   <span className="font-bold text-blue-600">{status.processadosHoje}</span>
                 </div>
                 <div className="flex justify-between items-center">

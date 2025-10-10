@@ -508,7 +508,12 @@ const darBaixa = async (id: string) => {
                     <p className="text-gray-700 mb-4"><strong>Observações:</strong> {vale.observacoes}</p>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" className="hover:bg-white" onClick={() => baixarPDF(vale)}><Download className="w-4 h-4 mr-2"/> Baixar PDF</Button>
-                      <Button variant="outline" size="sm" className="hover:bg-white">📧 Enviar Email</Button>
+                      <Button variant="outline" size="sm" className="hover:bg-white"><a href="https://mail.google.com/mail/?view=cm&fs=1&to=exemplo@email.com&su=Contato%20do%20site&body=Olá,%20quero%20saber%20mais..."
+                            target="_blank" 
+                            rel="noopener noreferrer">
+                            📧 Enviar email ao cliente
+                          </a>
+                      </Button>
                       <Button variant="outline" size="sm" className="hover:bg-white">📋 Copiar Dados</Button>
                     </div>
                   </div>

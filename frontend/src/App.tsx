@@ -86,8 +86,9 @@ function App() {
           <Route path="vales-vencidos" element={<PrivateRouteSupervisor><ValesVencidos /></PrivateRouteSupervisor>} /> {/* Rota: /dashboard/vales-vencidos */}
           <Route path="apontamento" element={<PrivateRouteSupervisor><NotFound /></PrivateRouteSupervisor>} /> {/* Rota: /dashboard/apontamento */}
           <Route path="aprova-adm" element={<PrivateRouteAdm><AprovaADM /></PrivateRouteAdm>} /> {/* Rota: /dashboard/aprova-adm */}
+          <Route path="cadastra-seClientOrTransporter" element={<PrivateRouteAdm><CadastreSeUser /></PrivateRouteAdm>} />
         </Route>
-        <Route path="/cadastre-se" element={<CadastreSeUser />} />
+
 
         {/* Rota para página não encontrada */}
         <Route path="*" element={<NotFound />} />

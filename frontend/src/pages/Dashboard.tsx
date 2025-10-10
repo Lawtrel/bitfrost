@@ -187,13 +187,16 @@ const Dashboard = () => {
   const taxaProcessamento = totalVales > 0 
     ? ((processadosAtual / totalVales) * 100).toFixed(1) 
     : "0.0";
+  const papelTotal = valesProcessados.length * 3; // 3 folhas por vale 
+  const papelAtual = valesProcessados.length; // 1 folha por vale
+  const porcentagemPapel = papelAtual * 100 / papelTotal; // porcentagem de papel usado
 
   return (
     <div className="p-6 space-y-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 text-white shadow-xl">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Cargo Token</h1>
+            <h1 className="text-4xl font-bold mb-2">BIFROST</h1>
             <p className="text-blue-100 text-lg">Controle inteligente de movimentação de paletes</p>
             <div className="flex items-center gap-4 mt-4">
               <Badge className="bg-green-500/20 text-green-100 border-green-300">
@@ -412,7 +415,7 @@ const Dashboard = () => {
             <div className="text-sm text-gray-600">Valor Movimentado</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-gray-800">45%</div>
+            <div className="text-2xl font-bold text-gray-800">{porcentagemPapel.toFixed(2)}%</div>
             <div className="text-sm text-gray-600">Redução de Papel</div>
           </div>
         </div>

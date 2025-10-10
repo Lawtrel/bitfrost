@@ -21,7 +21,6 @@ interface UsuarioLogado {
 const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [showSearch, setShowSearch] = useState(false);
   const [usuario, setUsuario] = useState<UsuarioLogado | null>(null);
   const [online, setOnline] = useState(false);
   const [isAdm, setIsAdm] = useState(false);
@@ -181,13 +180,6 @@ const Layout = () => {
                     <p className="text-sm font-semibold text-gray-800">{usuario?.nome}</p>
                     <p className="text-xs text-gray-500">{usuario?.email}</p>
                   </div>
-                  <Button
-                    variant="secondary"
-                    className="w-full"
-                    onClick={() => navigate("/signUser")}
-                  >
-                    Cadastrar novo usuário
-                  </Button>
                   <Button
                     variant="destructive"
                     className="w-full"
