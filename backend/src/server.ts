@@ -13,6 +13,29 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+app.get('/', (req, res) => {
+  const status = "ok";
+  const message = "A API Bitfrost está funcionando nos conformes!";
+  const timestamp = new Date().toISOString();
+  const asciiArt = `
+      -----------------
+    /     B I T       /|
+   / F R O S T       / |
+  -----------------  /
+  |   ( o ) ( o )   | /
+  |      ^          |/
+  |    (---)        |
+  -----------------
+    `;
+  res.setHeader('Content-Type', 'text/plain');
+  res.status(200).send(`
+Status: ${status}
+Message: ${message}
+Timestamp: ${timestamp}
+${asciiArt}
+  `);
+});
+
 app.use('/api/vales', valeRoutes);
 app.use('/api/clientes', clienteRoutes);
 app.use('/api/transportadoras', transportadoraRoutes);
