@@ -14,6 +14,7 @@ import AprovaADM from './pages/AprovaADM';
 import NotFound from './pages/NotFound';
 import { useAuth } from './hooks/useAuth';
 import { useEffect, useState } from 'react';
+import CadastreSeUser from './pages/CadastreSeClientOrTransporter';
 
 function App() {
   const { user, loading } = useAuth();
@@ -86,6 +87,7 @@ function App() {
           <Route path="apontamento" element={<PrivateRouteSupervisor><NotFound /></PrivateRouteSupervisor>} /> {/* Rota: /dashboard/apontamento */}
           <Route path="aprova-adm" element={<PrivateRouteAdm><AprovaADM /></PrivateRouteAdm>} /> {/* Rota: /dashboard/aprova-adm */}
         </Route>
+        <Route path="/cadastre-se" element={<CadastreSeUser />} />
 
         {/* Rota para página não encontrada */}
         <Route path="*" element={<NotFound />} />

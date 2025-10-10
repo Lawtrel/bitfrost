@@ -62,7 +62,7 @@ export const deleteVale = (id: string) => api.delete(`/vales/${id}`);
 
 // Clientes
 export const getClientes = () => api.get<Cliente[]>('/clientes');
-export const createCliente = (nome: string) => api.post('/clientes', { nome });
+export const createCliente = (nome: string) => api.post('/clientes', {nome});
 
 // Transportadoras
 export const getTransportadoras = () => api.get<Transportadora[]>('/transportadoras');
