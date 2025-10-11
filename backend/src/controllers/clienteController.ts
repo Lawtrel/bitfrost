@@ -6,14 +6,23 @@ const prisma = new PrismaClient();
 // --- Criar um novo Cliente ---
 export const createCliente = async (req: Request, res: Response) => {
   try {
+    console.log("Recebido no backend:", req.body); // 🔹 log do corpo
     const { nome } = req.body;
+
+    if (!nome || nome.trim() === "") {
+      return res.status(400).json({ error: "Nome inválido" });
+    }
+
     const newCliente = await prisma.cliente.create({
       data: { nome },
     });
+    console.log("Cliente criado:", newCliente); // 🔹 log do resultado
     res.status(201).json(newCliente);
   } catch (error) {
+    console.error("Erro ao criar cliente:", error); // 🔹 log do erro real
     res.status(500).json({ error: 'Nao foi possivel criar o cliente.' });
   }
+  console.log('DATABASE_URL =', process.env.DATABASE_URL);
 };
 
 // --- Listar todos os Clientes ---

@@ -73,7 +73,11 @@ export function AcoesRapidas({ clientePreenchido, formData }: AcoesRapidasProps)
           disabled={!clientePreenchido}
         >
           <Send className="w-4 h-4 mr-2" />
-          Enviar por Email
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=exemplo@email.com&su=Contato%20do%20site&body=Olá,%20quero%20saber%20mais..."
+            target="_blank" 
+            rel="noopener noreferrer">
+            📧 Enviar email ao cliente
+          </a>
         </Button>
       </CardContent>
     </Card>

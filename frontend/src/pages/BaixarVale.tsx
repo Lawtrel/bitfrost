@@ -310,6 +310,7 @@ const darBaixa = async (id: string) => {
                           size="sm"
                           className="bg-green-600 hover:bg-green-700"
                           onClick={() => darBaixa(vale.id)}
+                          disabled={!vale.arquivoBase64 || !vale.arquivoNome || uploading === vale.id}
                         >
                           <CheckCircle className="w-4 h-4 mr-2" />
                           Dar Baixa
@@ -339,15 +340,12 @@ const darBaixa = async (id: string) => {
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;
-
                         setUploading(vale.id);
-
                         const reader = new FileReader();
                         reader.onload = async () => {
                           try {
                             const base64 = reader.result as string;
                             await updateArquivoVale(vale.id, base64, file.name);
-
                             toast({
                               title: "✅ Upload concluído!",
                               description: "Arquivo salvo no Banco de daos.",
@@ -408,7 +406,7 @@ const darBaixa = async (id: string) => {
                       </a>
                     )}
                     {openModal && valeSelecionado && (
-                                      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+                      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
                     <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg">
                       <h2 className="text-xl font-semibold text-gray-800 mb-4">
                         Cliente já foi contatado?
@@ -508,7 +506,12 @@ const darBaixa = async (id: string) => {
                     <p className="text-gray-700 mb-4"><strong>Observações:</strong> {vale.observacoes}</p>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" className="hover:bg-white" onClick={() => baixarPDF(vale)}><Download className="w-4 h-4 mr-2"/> Baixar PDF</Button>
-                      <Button variant="outline" size="sm" className="hover:bg-white">📧 Enviar Email</Button>
+                      <Button variant="outline" size="sm" className="hover:bg-white"><a href="https://mail.google.com/mail/?view=cm&fs=1&to=exemplo@email.com&su=Contato%20do%20site&body=Olá,%20quero%20saber%20mais..."
+                            target="_blank" 
+                            rel="noopener noreferrer">
+                            📧 Enviar email ao cliente
+                          </a>
+                      </Button>
                       <Button variant="outline" size="sm" className="hover:bg-white">📋 Copiar Dados</Button>
                     </div>
                   </div>

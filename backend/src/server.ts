@@ -42,10 +42,12 @@ app.use('/api/transportadoras', transportadoraRoutes);
 app.use('/api/admins', adminRoutes);
 
 const PORT = process.env.PORT || 3001;
+const HOST = process.env.HOST || 'localhost';
+
 
 if (process.env.NODE_ENV !== 'test') {
     app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
+        console.log(`Server is running on port http://${HOST}:${PORT}`);
     });
 }
 
