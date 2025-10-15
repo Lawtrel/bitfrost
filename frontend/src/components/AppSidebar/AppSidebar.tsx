@@ -175,7 +175,7 @@ export function AppSidebar() {
           {!collapsed && (
             <div>
               <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Vale Palete
+                BITFROST
               </h2>
               <p className="text-sm text-gray-600 font-medium">
                 Sistema Digital
