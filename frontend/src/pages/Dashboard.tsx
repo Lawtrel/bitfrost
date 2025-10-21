@@ -6,7 +6,7 @@ import { TrendingUp, AlertTriangle, Users, Truck, Package, FileText, Hourglass }
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useVales } from "@/hooks/useVales";
-import { getVales } from "@/services/api";
+import { getClientes, getTransportadoras, getVales } from "@/services/api";
 
 interface ValesProps {
   id: string;
@@ -178,6 +178,20 @@ const Dashboard = () => {
         };
         fetchVales();
       }, []);
+      useEffect(() => {
+        const fetchClientesETransportadoras = async () => {
+          try {
+            const fetchClientes = await getClientes();
+            setQtdClientes(fetchClientes.data.length);
+            const fetchTrnasportadoras = await getTransportadoras();
+            setQtdTransportadoras(fetchTrnasportadoras.data.length);
+          } catch (e) {
+            console.error(e);
+            setError("Falha ao carregar os clientes.");
+          }
+        };
+          fetchClientesETransportadoras();
+        }, []);
       if (loading) return <div className="p-6 text-center">Carregando dados...</div>;
       if (error) return <div className="p-6 text-center text-red-500">{error}</div>;
   const valorMovimentado = valesProcessados.reduce((acc, vale) => {
@@ -191,6 +205,7 @@ const Dashboard = () => {
     const papelEconomizado = (papelAtual * 3) - papelAtual;
     const papelTotalSemSistema = valesProcessados.length * 3; // 3 folhas por vale sem o sistema 
   const porcentagemPapel = papelEconomizado* 100 / papelTotalSemSistema; // porcentagem de papel usado
+
 
   return (
     <div className="p-6 space-y-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
