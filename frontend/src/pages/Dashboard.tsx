@@ -212,7 +212,7 @@ const Dashboard = () => {
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 text-white shadow-xl">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-2">BITFROST</h1>
+            <h1 className="text-4xl font-bold mb-2">BIFROST</h1>
             <p className="text-blue-100 text-lg">Controle inteligente de movimentação de paletes</p>
             <div className="flex items-center gap-4 mt-4">
               <Badge className="bg-green-500/20 text-green-100 border-green-300">
