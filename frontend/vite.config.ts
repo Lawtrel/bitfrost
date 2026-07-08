@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
@@ -22,4 +22,19 @@ export default defineConfig(({ mode }) => ({
     outDir: 'dist', // Diretório de saída da build
     chunkSizeWarningLimit: 2500, // Limite do tamanho dos chunks para evitar warnings
   },
+  test: {
+    globals: true, // Permite o uso de variáveis globais nos testes
+    environment: 'jsdom', // Ambiente de teste usando jsdom para simular o DOM
+    setupFiles: './setupTests.ts',
+    coverage: {
+      provider: "v8",
+      include: [
+        "src/**/*.{ts,tsx}"
+      ],
+      reporter:[
+        "text",
+        "html",
+      ],
+    }
+  }
 }));

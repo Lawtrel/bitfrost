@@ -3,7 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar-button/sidebar";
 import { AppSidebar } from "@/components/AppSidebar/AppSidebar"; 
 import { Bell, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import  Button from "@/components/ui/Button/button";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import {
@@ -123,7 +123,7 @@ const Layout = () => {
             <div className="flex items-center gap-4">
               {isAdm ? (
                 <Button
-                  variant="ghost"
+                  variant="primary"
                   size="sm"
                   className="hidden md:flex items-center gap-2 text-gray-600 hover:bg-blue-500 border border-black"
                 >
@@ -136,7 +136,7 @@ const Layout = () => {
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    variant="ghost"
+                    variant="primary"
                     size="sm"
                     className="relative"
                     title="Notificações"
@@ -181,7 +181,7 @@ const Layout = () => {
                     <p className="text-xs text-gray-500">{usuario?.email}</p>
                   </div>
                   <Button
-                    variant="destructive"
+                    variant="primary"
                     className="w-full"
                     onClick={handleLogout}
                   >

@@ -15,6 +15,7 @@ import NotFound from './pages/NotFound';
 import { useAuth } from './hooks/useAuth';
 import { useEffect, useState } from 'react';
 import CadastreSeUser from './pages/CadastreSeClientOrTransporter';
+import Index from './pages/index/Index';
 
 function App() {
   const { user, loading } = useAuth();
@@ -66,11 +67,14 @@ function App() {
   }
 
   return (
+    <>
+    
     <Router>
       <Routes>
         {/* Rotas Públicas */}
         <Route path="/login" element={<LoginADM />} />
-        <Route path="/" element={<CadastreSeADM />} />
+        <Route path="/" element={<Index />} />
+        <Route path="/cadastre-se" element={<CadastreSeADM />} />
 
         {/* Rota "Pai" do Dashboard - Protegida e com o Layout */}
         <Route 
@@ -95,6 +99,7 @@ function App() {
       </Routes>
       <Toaster />
     </Router>
+    </>
   );
 }
 

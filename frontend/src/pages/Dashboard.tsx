@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button/button";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { TrendingUp, AlertTriangle, Users, Truck, Package, FileText, Hourglass } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -294,27 +294,6 @@ const Dashboard = () => {
         {/* Botões de navegação */}
         {podeVerBotao ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Button 
-            onClick={() => navigate('/dashboard/baixar-vale')}
-            className="h-16 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg"
-          >
-            <FileText className="mr-2 h-5 w-5" />
-            Processar Vales Recebidos
-          </Button>
-          <Button 
-            onClick={() => navigate('/dashboard/criar-vale')}
-            className="h-16 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg"
-          >
-            <Package className="mr-2 h-5 w-5" />
-            Criar Novo Vale
-          </Button>
-          <Button 
-            onClick={() => navigate('/dashboard/vales-vencidos')}
-            className="h-16 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg"
-          >
-            <AlertTriangle className="mr-2 h-5 w-5" />
-            Verificar Vencidos
-          </Button>
         </div>
         ): <></>}
         

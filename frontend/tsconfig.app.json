@@ -20,11 +20,13 @@
     "noUnusedParameters": false,
     "noImplicitAny": false,
     "noFallthroughCasesInSwitch": false,
-
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types":[
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ]
   },
   "include": ["src"]
 }

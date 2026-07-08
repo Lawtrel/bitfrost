@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button/button";
 import { Eye, Download, Search, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -145,19 +145,7 @@ const ValesProcessados = () => {
                   {`VP-${vale.id}`}
                 </Badge>
                 <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setModalVale(vale)}
-                    className="hover:bg-blue-50"
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    Visualizar
-                  </Button>
-                  <Button onClick={() => baixarPDF(vale)} className="bg-blue-600 hover:bg-blue-700 text-white">
-                    <Download className="w-4 h-4 mr-2" />
-                    Baixar PDF
-                  </Button>
+                  
                   {vale.arquivoBase64 && vale.arquivoNome && (
                       <a
                         href={vale.arquivoBase64.startsWith("data:") ? vale.arquivoBase64 : `data:application/octet-stream;base64,${vale.arquivoBase64}`}
@@ -218,9 +206,6 @@ const ValesProcessados = () => {
                           </div>
 
                           <DialogFooter className="mt-6 flex justify-end">
-                            <Button onClick={() => setModalVale(null)} variant="outline">
-                              Fechar
-                            </Button>
                           </DialogFooter>
                         </>
                       )}

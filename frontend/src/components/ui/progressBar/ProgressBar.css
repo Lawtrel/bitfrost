@@ -1,0 +1,27 @@
+@keyframes loading-shine {
+    from {
+        transform: translateX(0%);
+    }
+
+    to {
+        transform: translateX(300%);
+    }
+}
+
+.loading-shine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 25%;
+    height: 28%;
+    top: 72%;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,.6),
+        transparent
+    );
+
+    animation: loading-shine 1.3s linear infinite;
+}

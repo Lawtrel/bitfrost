@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { loginUsuario } from "@/services/api";
+import Header from "@/components/layout/header/header";
 
 export default function Login() {
   const { toast } = useToast();
@@ -72,6 +73,8 @@ export default function Login() {
 };
 
   return (
+    <>
+    <Header />
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 px-4">
       <Card className="w-full max-w-md shadow-xl border-0">
         <CardHeader>
@@ -99,18 +102,10 @@ export default function Login() {
               onChange={(e) => handleChange("senha", e.target.value)}
             />
           </div>
-
-          <Button
-            onClick={handleLogin}
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold mt-4"
-          >
-            {loading ? "Entrando..." : "Entrar"}
-          </Button>
           <p className="text-center text-sm text-gray-600">
               Ainda não tem uma conta?{" "}
               <a
-                href="/"
+                href="/cadastre-se"
                 className="text-blue-600 hover:underline font-medium"
               >
                 Cadastre-se
@@ -119,5 +114,6 @@ export default function Login() {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }
