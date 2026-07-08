@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
@@ -158,7 +158,7 @@ const darBaixaVale = async (id: string) => {
                     <div><span className="font-medium">Data de Vencimento:</span><p className="text-red-700 font-semibold">{new Date(vale.dataVencimento).toLocaleDateString("pt-BR")}</p></div>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2"><Button variant="outline" size="sm" className="border-red-300 text-red-700 hover:bg-red-50" onClick={() => confirmarContato(vale)}>Contatar Cliente</Button><Button size="sm" className="bg-red-600 hover:bg-red-700">Ação Emergencial</Button></div>
+                <div className="flex flex-col gap-2"></div>
                 {openModal && valeSelecionado && (
                   <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
                     <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg">
@@ -169,34 +169,7 @@ const darBaixaVale = async (id: string) => {
                         Deseja dar baixa no vale <strong>{valeSelecionado.id}</strong> e mover para processados?
                       </p>
                       <div className="flex justify-end gap-3">
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setOpenModal(false);
-                            setValeSelecionado(null);
-                          }}
-                        >
-                          Não, fechar
-                        </Button>
-                        <Button>
-                          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=exemplo@email.com&su=Contato%20do%20site&body=Olá,%20quero%20saber%20mais..."
-                            target="_blank" 
-                            rel="noopener noreferrer">
-                            Enviar email ao cliente
-                          </a>
-                        </Button>
-                        <Button
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                          onClick={() => {
-                            if (valeSelecionado) {
-                              darBaixaVale(valeSelecionado.id);
-                              setOpenModal(false);
-                              setValeSelecionado(null);
-                            }
-                          }}
-                        >
-                          Sim, dar baixa
-                        </Button>
+
                       </div>
                     </div>
                   </div>

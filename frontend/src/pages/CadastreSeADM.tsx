@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import  Button  from "@/components/ui/Button/button";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { createUsuario, getUsuariosByEmail, getUsuariosByRole } from "../services/api";
+import Header from "@/components/layout/header/header";
 
 export default function Cadastro() {
   const { toast } = useToast();
@@ -131,6 +132,8 @@ export default function Cadastro() {
   };
 
   return (
+    <>
+    <Header />
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 px-4">
       <Card className="w-full max-w-md shadow-xl border-0">
         <CardHeader>
@@ -216,5 +219,6 @@ export default function Cadastro() {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }

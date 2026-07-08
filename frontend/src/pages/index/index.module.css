@@ -1,0 +1,31 @@
+.shine-effect {
+    overflow: hidden;
+}
+
+.shine-effect::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    width: 10px;
+    height: 80%;
+
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,.6),
+        transparent
+    );
+
+    transform: rotate(20deg);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    from {
+        left: 10%;
+    }
+    to {
+        left: 80%;
+    }
+}

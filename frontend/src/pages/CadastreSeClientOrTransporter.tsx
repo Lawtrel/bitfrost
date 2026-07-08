@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button/button";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import {
@@ -110,14 +110,6 @@ export default function CadastreSeUser() {
               onChange={(e) => handleChange("nome", e.target.value)}
             />
           </div>
-
-          <Button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-          >
-            {loading ? "Enviando..." : "Cadastrar"}
-          </Button>
         </CardContent>
       </Card>
     </div>
