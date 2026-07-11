@@ -1,25 +1,33 @@
 import { Carousel, CarouselButtonNext, CarouselButtonPrev, CarouselContent, CarouselItem } from "@/components/ui/Carousel";
+import { heroCards } from "./heroCards";
+import { Card } from "@/components/ui/card/card";
 
 
 export default function CarouselHero () {
     return(
-        <Carousel className='w-[1700px] flex items-center justify-center bg-black h-auto rounded-[40px]'>
+        <Carousel className='w-[1700px] flex items-center justify-center bg-blue-800 h-auto rounded-[40px]'>
             <CarouselButtonPrev className='flex mr-5'previousClassName='p-2'  />
             <CarouselContent className="w-[1400px]">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+                {heroCards.map((heroCard) => {
+                    const Icon = heroCard.icon;
+                    return(
                     <CarouselItem
-                        key={item}
+                        key={heroCard.id}
                         className="basis-1/4"
                     >
-                    <div className="flex h-52 m-8 w-[280px] items-center justify-center rounded-3xl border bg-card shadow-lg">
-                        <span className="text-2xl font-bold">
-                        Card {item}
-                        </span>
-                    </div>
-                </CarouselItem>
-                ))}
-        </CarouselContent>
+                        <Card 
+                            className="h-[200px] w-[300px] m-8" 
+                            titleClassName="text-white group-hover:text-black w-[150px]" 
+                            cardTitle={heroCard.title} 
+                            cardDescription={heroCard.description} 
+                            iconClassName="w-[50px] h-[50px]" 
+                            cardIcon={<Icon className=" group-hover:text-blue-800 text-white" />}  
+                            />
+                    </CarouselItem>
+                    )
+                })}
+            </CarouselContent>
             <CarouselButtonNext className='flex ml-5' nextClassName='p-2'/>
-      </Carousel>
+        </Carousel>
     )
 }

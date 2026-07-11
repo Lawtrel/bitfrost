@@ -8,7 +8,7 @@ export default function ApresentationHero (){
             completeLoading,
         } = useMediaLoading();
     return (
-        <div className='w-[1000px] relative'>
+        <div data-testid="apresentation" className='w-[1000px] relative'>
             {isLoading && (
                 <ProgressBar
                     progress={progress}

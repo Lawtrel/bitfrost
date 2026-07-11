@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/Button/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import  Button  from "@/components/ui/button/button";
+import { Card } from "@/components/ui/card/card";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { loginUsuario } from "@/services/api";
@@ -77,41 +77,7 @@ export default function Login() {
     <Header />
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 px-4">
       <Card className="w-full max-w-md shadow-xl border-0">
-        <CardHeader>
-          <CardTitle className="text-center text-2xl text-blue-800 font-bold">
-            Login de Colaborador
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          <div className="space-y-2">
-            <Label>Email Corporativo</Label>
-            <Input
-              type="email"
-              placeholder="exemplo@heineken.com"
-              value={form.email}
-              onChange={(e) => handleChange("email", e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Senha</Label>
-            <Input
-              type="password"
-              placeholder="Digite sua senha"
-              value={form.senha}
-              onChange={(e) => handleChange("senha", e.target.value)}
-            />
-          </div>
-          <p className="text-center text-sm text-gray-600">
-              Ainda não tem uma conta?{" "}
-              <a
-                href="/cadastre-se"
-                className="text-blue-600 hover:underline font-medium"
-              >
-                Cadastre-se
-              </a>
-            </p>
-        </CardContent>
+        
       </Card>
     </div>
     </>

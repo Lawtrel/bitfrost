@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/Button/button";
+import  Button  from "@/components/ui/button/button";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import {
@@ -83,34 +83,6 @@ export default function CadastreSeUser() {
   return (
     <div className="flex justify-center items-center min-h-screen bg-slate-50 p-4">
       <Card className="w-full max-w-md shadow-lg border-0">
-        <CardHeader>
-          <CardTitle className="text-xl font-bold text-center text-gray-800">
-            Cadastro de Cliente / Transportadora
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Tipo</Label>
-            <select
-              className="w-full border rounded px-3 py-2"
-              value={form.tipo}
-              onChange={(e) => handleChange("tipo", e.target.value)}
-            >
-              <option value="cliente">Cliente</option>
-              <option value="transportadora">Transportadora</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Nome</Label>
-            <Input
-              type="text"
-              placeholder="Nome completo"
-              value={form.nome}
-              onChange={(e) => handleChange("nome", e.target.value)}
-            />
-          </div>
-        </CardContent>
       </Card>
     </div>
   );

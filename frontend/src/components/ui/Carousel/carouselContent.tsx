@@ -29,6 +29,7 @@ const CarouselContent = forwardRef<
 
     return (
       <div
+        data-testid="viewport-classname"
         ref={carouselRef}
         className={cn(
           "overflow-hidden",
@@ -36,6 +37,7 @@ const CarouselContent = forwardRef<
         )}
       >
         <div
+          data-testid="carousel-content"
           ref={ref}
           className={cn(
             "flex",

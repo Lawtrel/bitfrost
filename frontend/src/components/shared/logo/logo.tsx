@@ -1,8 +1,8 @@
 import styles from './Logo.module.css'
 
 interface LogoProps {
-   size: number;
-   isLazy?: boolean;
+    size: number;
+    isLazy?: boolean;
 }
 
 export default function Logo ({size, isLazy = false}: LogoProps) {

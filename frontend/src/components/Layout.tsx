@@ -3,7 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar-button/sidebar";
 import { AppSidebar } from "@/components/AppSidebar/AppSidebar"; 
 import { Bell, Search } from "lucide-react";
-import  Button from "@/components/ui/Button/button";
+import  Button from "@/components/ui/button/button";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import {

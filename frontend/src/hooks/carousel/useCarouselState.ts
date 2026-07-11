@@ -25,7 +25,6 @@ export function useCarouselState({
   plugins,
 }: UseCarouselStateProps = {}) {
 
-
   const [
     carouselRef,
     api
@@ -34,51 +33,41 @@ export function useCarouselState({
     plugins
   );
 
-
   const [
     selectedIndex,
     setSelectedIndex
   ] = useState(0);
-
 
   const [
     scrollSnaps,
     setScrollSnaps
   ] = useState<number[]>([]);
 
-
   const [
     canScrollPrev,
     setCanScrollPrev
   ] = useState(false);
-
 
   const [
     canScrollNext,
     setCanScrollNext
   ] = useState(false);
 
-
-
   const onSelect = useCallback(() => {
 
     if (!api) return;
-
 
     setSelectedIndex(
       api.selectedScrollSnap()
     );
 
-
     setCanScrollPrev(
       api.canScrollPrev()
     );
 
-
     setCanScrollNext(
       api.canScrollNext()
     );
-
 
   }, [api]);
 
@@ -90,15 +79,11 @@ export function useCarouselState({
 
   }, [api]);
 
-
-
   const scrollNext = useCallback(() => {
 
     api?.scrollNext();
 
   }, [api]);
-
-
 
   const scrollTo = useCallback(
     (index:number)=>{

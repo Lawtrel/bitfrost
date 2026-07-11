@@ -11,7 +11,7 @@ interface ProgressBarProps {
 export default function ProgressBar ({progress, className, showPercentage = true, "data-testid": dataTestId}: ProgressBarProps) {
     const percentage = Math.round(Math.min(progress, 100));
     return(
-        <div className={cn("w-full", className)}>
+        <div role="progressbar" className={cn("w-full", className)}>
             <div className="mb-2 flex justify-between items-center">
                 <span className="text-md font-bold text-indigo-400">
                 Carregando...

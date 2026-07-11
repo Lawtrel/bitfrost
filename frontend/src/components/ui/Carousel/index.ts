@@ -4,8 +4,8 @@ export { default as CarouselContent } from "./carouselContent";
 
 export { default as CarouselItem } from "./carouselItem";
 
-export { default as CarouselButtonNext } from "./CarouselControls/carouselButtonNext";
-export { default as CarouselButtonPrev } from "./CarouselControls/carouselButtonPrev";
+export { default as CarouselButtonNext } from "./carouselControls/carouselButtonNext";
+export { default as CarouselButtonPrev } from "./carouselControls/carouselButtonPrev";
 
 export { default as CarouselDots } from "./carouselDots";
 

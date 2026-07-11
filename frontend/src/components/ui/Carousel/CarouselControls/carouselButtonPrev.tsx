@@ -1,14 +1,11 @@
 import { useCarousel } from "@/hooks/carousel/useCarouselContext";
 import { ChevronLeft } from "lucide-react";
-import Button from "../../Button/button";
+import Button from "../../button/button";
 
 
 interface CarouselControlsProps {
   className?: string;
-
   previousClassName?: string;
-
-  nextClassName?: string;
 }
 
 export default function CarouselButtonPrev({
@@ -22,9 +19,11 @@ export default function CarouselButtonPrev({
 
   return (
     <div
-        className={className}
+      className={className}
+      data-testid="button-prev-container"
     >
       <Button
+        data-testid="button-prev"
         variant="secondary"
         title="Anterior"
         leftIcon={<ChevronLeft />}

@@ -1,9 +1,9 @@
 // src/pages/ValesVencidos.tsx
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/Button/button";
+import  Button  from "@/components/ui/button/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
@@ -133,49 +133,12 @@ const darBaixaVale = async (id: string) => {
       </Alert>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-red-700">Resumo dos Vales Vencidos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-red-50 rounded-lg"><p className="text-2xl font-bold text-red-800">{valesVencidos.length}</p><p className="text-sm text-red-600">Total de Vales</p></div>
-            <div className="text-center p-4 bg-red-50 rounded-lg"><p className="text-2xl font-bold text-red-800">{valesVencidos.reduce((acc, vale) => acc + vale.quantidade, 0)}</p><p className="text-sm text-red-600">Paletes em Atraso</p></div>
-            <div className="text-center p-4 bg-red-50 rounded-lg"><p className="text-2xl font-bold text-red-800">{maxDiasVencido}</p><p className="text-sm text-red-600">Dias do Maior Atraso</p></div>
-          </div>
-        </CardContent>
       </Card>
 
       <div className="grid gap-4">
         {valesVencidos.map((vale) => (
           <Card key={vale.id} className="border-red-200 bg-red-50/30">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3"><Badge variant="outline" className="font-mono border-red-300">{`VP-${vale.id}`}</Badge><h3 className="font-semibold text-lg text-gray-800">{vale.cliente}</h3><Badge className={getBadgeColor(vale.diasVencido)}>{vale.diasVencido} dias vencido</Badge></div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700">
-                    <div><span className="font-medium">Transportadora:</span><p>{vale.transportadora}</p></div>
-                    <div><span className="font-medium">Quantidade:</span><p className="text-red-700 font-semibold">{vale.quantidade} paletes</p></div>
-                    <div><span className="font-medium">Data de Vencimento:</span><p className="text-red-700 font-semibold">{new Date(vale.dataVencimento).toLocaleDateString("pt-BR")}</p></div>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2"></div>
-                {openModal && valeSelecionado && (
-                  <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-                    <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg">
-                      <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                        Cliente já foi contatado?
-                      </h2>
-                      <p className="text-gray-600 mb-6">
-                        Deseja dar baixa no vale <strong>{valeSelecionado.id}</strong> e mover para processados?
-                      </p>
-                      <div className="flex justify-end gap-3">
-
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
+            
           </Card>
         ))}
       </div>
