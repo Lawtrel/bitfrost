@@ -1,4 +1,4 @@
-import styles from './Logo.module.css'
+import styles from './logo.module.css'
 
 interface LogoProps {
     size: number;
