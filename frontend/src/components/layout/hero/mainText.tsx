@@ -1,5 +1,5 @@
 import AnimatedText from "@/components/shared/animatedText/animatedText";
-import Button from "@/components/ui/Button/button";
+import Button from "@/components/ui/button/button";
 import { MoveRight } from "lucide-react";
 
 export default function MainText() {
@@ -10,7 +10,7 @@ export default function MainText() {
         'otimizar o trabalho e aumentar a produtividade.',
     ];
     return (
-        <section className="flex flex-col gap-8 pt-20 w-[600px]">
+        <section role="region" className="flex flex-col gap-8 pt-20 w-[600px]">
             <div className="flex flex-col gap-8">
                 <h2 className="text-6xl font-bold font-inter">Gestão inteligente de pallets e documentos para {' '}
                     <AnimatedText items={heroMessages} />

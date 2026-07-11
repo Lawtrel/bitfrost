@@ -44,11 +44,13 @@ export default function CarouselCounter({
       {...props}
     >
       {prefix}
+      {" "}
       {format(current)}
       {" "}
       {separator}
       {" "}
       {format(slideCount)}
+      {" "}
       {suffix}
     </p>
   );

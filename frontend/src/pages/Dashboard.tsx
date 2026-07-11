@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/Button/button";
+import  Button  from "@/components/ui/button/button";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { TrendingUp, AlertTriangle, Users, Truck, Package, FileText, Hourglass } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -233,62 +233,18 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-yellow-600 text-sm font-medium">Vales Pendentes</p>
-                <p className="text-3xl font-bold text-yellow-800">{cadastradosAtual}</p>
-              </div>
-              <div className="bg-yellow-500 p-3 rounded-xl">
-                <Hourglass className="h-6 w-6 text-white" />
-              </div>
-            </div>
-          </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-red-600 text-sm font-medium">Vales Vencidos</p>
-                <p className="text-3xl font-bold text-red-800">{vencidosAtual}</p>
-                <p className="text-red-600 text-xs mt-1">↘ {diferencaVencidos.toFixed(2)}% vs mês anterior</p>
-              </div>
-              <div className="bg-red-500 p-3 rounded-xl">
-                <AlertTriangle className="h-6 w-6 text-white" />
-              </div>
-            </div>
-          </CardContent>
+          
         </Card>
 
         <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-600 text-sm font-medium">Transportadoras</p>
-                <p className="text-3xl font-bold text-blue-800">{qtdTransportadoras}</p>
-                <p className="text-blue-600 text-xs mt-1">Parceiros ativos</p>
-              </div>
-              <div className="bg-blue-500 p-3 rounded-xl">
-                <Truck className="h-6 w-6 text-white" />
-              </div>
-            </div>
-          </CardContent>
+          
         </Card>
 
         <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-purple-600 text-sm font-medium">Clientes</p>
-                <p className="text-3xl font-bold text-purple-800">{qtdClientes}</p>
-                <p className="text-purple-600 text-xs mt-1">Base ativa</p>
-              </div>
-              <div className="bg-purple-500 p-3 rounded-xl">
-                <Users className="h-6 w-6 text-white" />
-              </div>
-            </div>
-          </CardContent>
+          
         </Card>
       </div>
         {/* Botões de navegação */}
@@ -300,98 +256,14 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-lg">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-gray-800">
-              <TrendingUp className="h-5 w-5 text-blue-600" />
-              Evolução Mensal dos Vales
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={valesData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="mes" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="pendentes" fill="#fde047" name="Pendentes" />
-                <Bar dataKey="vencidos" fill="#ef4444" name="Vencidos" />
-                <Bar dataKey="processados" fill="#3b82f6" name="Processados" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
         </Card>
 
         <Card className="shadow-lg">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-gray-800">
-              <Package className="h-5 w-5 text-purple-600" />
-              Status Atual dos Vales
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={statusData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={120}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="flex justify-center gap-4 mt-4">
-              {statusData.map((item, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <div 
-                    className="w-3 h-3 rounded-full" 
-                    style={{ backgroundColor: item.color }}
-                  ></div>
-                  <span className="text-sm text-gray-600">
-                    {item.name}: {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
         </Card>
       </div>
 
       <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-gray-800">
-            <Users className="h-5 w-5 text-green-600" />
-            Top Clientes por Volume
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {topClientes.map((cliente, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                    {index + 1}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-800">{cliente.nome}</h3>
-                    <p className="text-sm text-gray-500">{cliente.vales} vales ativos</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-gray-800"> R$ {(cliente.valor / 1000).toFixed(0)}K</p>
-                  <p className="text-sm text-gray-500">Volume financeiro</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
+        
       </Card>
 
       <div className="bg-white rounded-xl p-6 shadow-lg border">

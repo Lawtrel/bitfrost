@@ -18,17 +18,17 @@ interface CarouselProps
 
 
 export default function Carousel({
- children,
- className,
- options,
- plugins,
- ...props
+  children,
+  className,
+  options,
+  plugins,
+  ...props
 }: CarouselProps) {
 
 
 const carousel = useCarouselState({
- options,
- plugins
+  options,
+  plugins
 });
 
 
@@ -36,17 +36,17 @@ return (
 
 <CarouselContext.Provider value={carousel}>
 
-<div
-className={cn(
-"relative",
-className
-)}
-{...props}
->
+  <div
+    className={cn(
+    "relative",
+    className
+    )}
+    {...props}
+  >
 
-{children}
+  {children}
 
-</div>
+  </div>
 
 </CarouselContext.Provider>
 

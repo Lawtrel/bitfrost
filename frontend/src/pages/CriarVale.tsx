@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card} from "@/components/ui/card/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Plus } from "lucide-react";
 import { FormCreatePalet } from "@/components/ui/form-create-palet";
@@ -128,15 +128,6 @@ const CriarVale = () => {
           />
           <AcoesRapidas clientePreenchido={!!formData.cliente} formData={formData} />
           <Card className="shadow-lg border-0 bg-gradient-to-br from-yellow-50 to-orange-50 border-orange-200">
-            <CardContent className="p-6">
-              <h4 className="font-semibold text-orange-800 mb-3">💡 Dicas</h4>
-              <ul className="text-sm text-orange-700 space-y-2">
-                <li>• Configure lembretes automáticos</li>
-                <li>• Use QR Code para rastreamento</li>
-                <li>• Integre com o sistema de estoque</li>
-                <li>• Mantenha histórico completo</li>
-              </ul>
-            </CardContent>
           </Card>
         </div>
       </div>

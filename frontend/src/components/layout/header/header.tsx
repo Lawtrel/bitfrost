@@ -1,6 +1,6 @@
 import { UserRound, UserRoundPlus } from 'lucide-react';
-import NavbarHeader from './navbar';
-import Button from '@/components/ui/Button/button';
+import NavbarHeader from './navbarHeader';
+import Button from '@/components/ui/button/button';
 import Logo from '@/components/shared/logo/logo';
 
 export default function Header() {

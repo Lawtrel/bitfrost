@@ -2,6 +2,7 @@ import { HTMLAttributes } from "react";
 
 import { cn } from "@/lib/utils";
 import { useCarousel } from "@/hooks/carousel/useCarouselContext";
+import { calculateCarouselProgress } from "./calculateCarouselProgress";
 
 
 interface CarouselProgressProps
@@ -29,20 +30,22 @@ export default function CarouselProgress({
     slideCount,
   } = useCarousel();
 
-  const progress =
-    slideCount <= 1
-      ? 100
-      : ((selectedIndex + 1) / slideCount ) * 100;
+  const progress = calculateCarouselProgress(
+    selectedIndex,
+    slideCount
+  );
 
   return (
-    <div className={cn("w-full", className)}>
+    <div data-testid="carousel-progress" className={cn("w-full", className)}>
       <div
+        data-testid="carousel-progress-track"
         className={cn(
           "h-2 w-full overflow-hidden rounded-full bg-zinc-200",
           trackClassName
         )}
       >
         <div
+          data-testid="carousel-progress-bar"
           className={cn(
             "h-full rounded-full bg-indigo-600 transition-all duration-300",
             progressClassName
@@ -55,6 +58,7 @@ export default function CarouselProgress({
 
       {showPercentage && (
         <p
+          data-testid="carousel-progress-percentage"
           className={cn(
             "mt-2 text-center text-sm font-medium",
             percentageClassName

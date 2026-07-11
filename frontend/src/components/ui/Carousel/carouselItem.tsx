@@ -4,9 +4,9 @@ import {
 } from "react";
 
 import { cn } from "@/lib/utils";
+import { useCarousel } from "@/hooks/carousel/useCarouselContext";
 
 interface CarouselItemProps extends HTMLAttributes<HTMLDivElement> {
-    className: string;
     children: React.ReactNode;
 }
 
@@ -19,6 +19,7 @@ const CarouselItem = forwardRef<HTMLDivElement, CarouselItemProps>(
     },
     ref
   ) => {
+    const { api } = useCarousel();
     return (
       <div
         ref={ref}
