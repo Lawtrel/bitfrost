@@ -2,29 +2,28 @@ version: '3.8'
 
 services:
   db:
-    image: mysql:8.0
-    cap_add:
-      - SYS_NICE
+    image: postgres:16
     restart: always
     environment:
-      - MYSQL_DATABASE=valePallet
-      - MYSQL_ROOT_PASSWORD=lawtrel
+      POSTGRES_DB: ${POSTGRES_DB:-valePallet}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-this-local-password}
     ports:
-      - '3306:3306'
+      - '${POSTGRES_PORT:-5432}:5432'
     volumes:
-      - db-data:/var/lib/mysql
+      - db-data:/var/lib/postgresql/data
+
   db_test:
-    image: mysql:8.0
-    cap_add:
-      - SYS_NICE
+    image: postgres:16
     restart: always
     environment:
-      - MYSQL_DATABASE=valePallet_test
-      - MYSQL_ROOT_PASSWORD=lawtrel
+      POSTGRES_DB: ${POSTGRES_TEST_DB:-valePallet_test}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD:-change-this-test-password}
     ports:
-      - '3307:3306'
+      - '${POSTGRES_TEST_PORT:-5433}:5432'
     volumes:
-      - db-test-data:/var/lib/mysql
+      - db-test-data:/var/lib/postgresql/data
 
 volumes:
   db-data:

@@ -8,14 +8,15 @@ import ValesProcessados from './pages/ValesProcessados';
 import ValesVencidos from './pages/ValesVencidos';
 import BaixarVale from './pages/BaixarVale';
 import ApontamentoVale from './pages/ApontamentoVale';
-import CadastreSeADM from './pages/CadastreSeADM';
-import LoginADM from './pages/LoginADM';
+import CadastreSeADM from './pages/SingUp/SingUp';
+import LoginADM from './pages/Login/Login';
 import AprovaADM from './pages/AprovaADM';
 import NotFound from './pages/NotFound';
 import { useAuth } from './hooks/useAuth';
 import { useEffect, useState } from 'react';
 import CadastreSeUser from './pages/CadastreSeClientOrTransporter';
 import Index from './pages/index/Index';
+import Header from './components/layout/header/header';
 
 function App() {
   const { user, loading } = useAuth();
@@ -68,37 +69,37 @@ function App() {
 
   return (
     <>
-    
-    <Router>
-      <Routes>
-        {/* Rotas Públicas */}
-        <Route path="/login" element={<LoginADM />} />
-        <Route path="/" element={<Index />} />
-        <Route path="/cadastre-se" element={<CadastreSeADM />} />
+      <Router>
+        <Header />
+        <Routes>
+          {/* Rotas Públicas */}
+          <Route path="/login" element={<LoginADM />} />
+          <Route path="/" element={<Index />} />
+          <Route path="/cadastre-se" element={<CadastreSeADM />} />
 
-        {/* Rota "Pai" do Dashboard - Protegida e com o Layout */}
-        <Route 
-          path="/dashboard" 
-          element={<PrivateRoute><Layout /></PrivateRoute>}
-        >
-          {/* Rotas "Filhas" que serão renderizadas dentro do Layout */}
-          <Route index element={<Dashboard />} /> {/* Rota inicial: /dashboard */}
-          <Route path="criar-vale" element={<PrivateRouteSupervisor><CriarVale /></PrivateRouteSupervisor>} /> {/* Rota: /dashboard/criar-vale */}
-          <Route path="baixar-vale" element={<PrivateRouteSupervisor><BaixarVale /></PrivateRouteSupervisor>} /> {/* Rota: /dashboard/baixar-vale */}
-          <Route path="vales-acumulados" element={<ValesAcumulados />} /> {/* Rota: /dashboard/vales-acumulados */}
-          <Route path="vales-processados" element={<PrivateRouteSupervisor><ValesProcessados /></PrivateRouteSupervisor>} /> {/* Rota: /dashboard/vales-processados */}
-          <Route path="vales-vencidos" element={<PrivateRouteSupervisor><ValesVencidos /></PrivateRouteSupervisor>} /> {/* Rota: /dashboard/vales-vencidos */}
-          <Route path="apontamento" element={<PrivateRouteSupervisor><NotFound /></PrivateRouteSupervisor>} /> {/* Rota: /dashboard/apontamento */}
-          <Route path="aprova-adm" element={<PrivateRouteAdm><AprovaADM /></PrivateRouteAdm>} /> {/* Rota: /dashboard/aprova-adm */}
-          <Route path="cadastra-seClientOrTransporter" element={<PrivateRouteAdm><CadastreSeUser /></PrivateRouteAdm>} />
-        </Route>
+          {/* Rota "Pai" do Dashboard - Protegida e com o Layout */}
+          <Route 
+            path="/dashboard" 
+            element={<PrivateRoute><Layout /></PrivateRoute>}
+          >
+            {/* Rotas "Filhas" que serão renderizadas dentro do Layout */}
+            <Route index element={<Dashboard />} /> {/* Rota inicial: /dashboard */}
+            <Route path="criar-vale" element={<PrivateRouteSupervisor><CriarVale /></PrivateRouteSupervisor>} /> {/* Rota: /dashboard/criar-vale */}
+            <Route path="baixar-vale" element={<PrivateRouteSupervisor><BaixarVale /></PrivateRouteSupervisor>} /> {/* Rota: /dashboard/baixar-vale */}
+            <Route path="vales-acumulados" element={<ValesAcumulados />} /> {/* Rota: /dashboard/vales-acumulados */}
+            <Route path="vales-processados" element={<PrivateRouteSupervisor><ValesProcessados /></PrivateRouteSupervisor>} /> {/* Rota: /dashboard/vales-processados */}
+            <Route path="vales-vencidos" element={<PrivateRouteSupervisor><ValesVencidos /></PrivateRouteSupervisor>} /> {/* Rota: /dashboard/vales-vencidos */}
+            <Route path="apontamento" element={<PrivateRouteSupervisor><NotFound /></PrivateRouteSupervisor>} /> {/* Rota: /dashboard/apontamento */}
+            <Route path="aprova-adm" element={<PrivateRouteAdm><AprovaADM /></PrivateRouteAdm>} /> {/* Rota: /dashboard/aprova-adm */}
+            <Route path="cadastra-seClientOrTransporter" element={<PrivateRouteAdm><CadastreSeUser /></PrivateRouteAdm>} />
+          </Route>
 
 
-        {/* Rota para página não encontrada */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Toaster />
-    </Router>
+          {/* Rota para página não encontrada */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Toaster />
+      </Router>
     </>
   );
 }
