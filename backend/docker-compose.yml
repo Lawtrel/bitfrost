@@ -5,11 +5,11 @@ services:
     image: postgres:16
     restart: always
     environment:
-      POSTGRES_DB: valePallet
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-valePallet}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-this-local-password}
     ports:
-      - '5432:5432'
+      - '${POSTGRES_PORT:-5432}:5432'
     volumes:
       - db-data:/var/lib/postgresql/data
 
@@ -17,11 +17,11 @@ services:
     image: postgres:16
     restart: always
     environment:
-      POSTGRES_DB: valePallet_test
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_TEST_DB:-valePallet_test}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD:-change-this-test-password}
     ports:
-      - '5433:5432'
+      - '${POSTGRES_TEST_PORT:-5433}:5432'
     volumes:
       - db-test-data:/var/lib/postgresql/data
 
