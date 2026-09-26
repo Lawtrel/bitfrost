@@ -15,13 +15,13 @@ describe("Card", () => {
     })
 
     it("Deve renderizar os componentes filhos corretamente", () => {
-    render(
-        <Card>Teste</Card>
-    );
+        render(
+            <Card>Teste</Card>
+        );
 
-    const card = screen.getByTestId("card");
+        const card = screen.getByTestId("card");
 
-    expect(card).toHaveTextContent("Teste");
+        expect(card).toHaveTextContent("Teste");
     });
 
     it("Deve aceitar classes personalizadas e renderizar classes padrões", () => {
@@ -57,6 +57,16 @@ describe("Card", () => {
     it("Deve renderizar o header se a descrição existir", () => {
         render(
             <Card cardDescription="Description" />
+        )
+
+        const cardHeader = screen.getByTestId("card-header");
+
+        expect(cardHeader).toBeInTheDocument();
+    });
+
+    it("Deve renderizar o header se o subtítulo existir", () => {
+        render(
+            <Card cardSubtitle="Sutitle" />
         )
 
         const cardHeader = screen.getByTestId("card-header");
@@ -142,6 +152,26 @@ describe("Card", () => {
         const cardDescription = screen.getByText("Description");
 
         expect(cardDescription).toHaveClass("custom-class", "text-md");
+    });
+
+    it("O subtítulo deve ser renderizado se for chamada", () => {
+        render(
+            <Card cardSubtitle="Subtitle" />
+        )
+
+        const cardsubtitle = screen.getByText("Subtitle");
+
+        expect(cardsubtitle).toBeInTheDocument();
+    });
+
+    it("O subtítulo deve permitir classes personalizadas e manter a classe padrão", () => {
+        render(
+            <Card cardSubtitle="Subtitle" subtitleClassName="custom-class" />
+        )
+
+        const cardSubtitle = screen.getByText("Subtitle");
+
+        expect(cardSubtitle).toHaveClass("custom-class", "text-2xl");
     });
 
     it("O footer deve ser renderizada se for chamada", () => {

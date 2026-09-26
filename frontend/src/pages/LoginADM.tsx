@@ -74,7 +74,6 @@ export default function Login() {
 
   return (
     <>
-    <Header />
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 px-4">
       <Card className="w-full max-w-md shadow-xl border-0">
         

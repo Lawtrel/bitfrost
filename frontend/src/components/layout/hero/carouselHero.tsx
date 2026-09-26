@@ -16,7 +16,7 @@ export default function CarouselHero () {
                         className="basis-1/4"
                     >
                         <Card 
-                            className="h-[200px] w-[300px] m-8" 
+                            className="h-[200px] w-[300px] m-8 border-purple-500  bg-gradient-to-br from-purple-900 to-indigo-600 hover:bg-gradient-to-br hover:from-purple-800 hover:to-indigo-400" 
                             titleClassName="text-white group-hover:text-black w-[150px]" 
                             cardTitle={heroCard.title} 
                             cardDescription={heroCard.description} 

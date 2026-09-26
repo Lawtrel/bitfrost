@@ -5,7 +5,7 @@ import Logo from '@/components/shared/logo/logo';
 
 export default function Header() {
     return (
-      <header className="w-full flex items-center text-center justify-between bg-background border-b border-indigo-400 px-4 shadow-sm shadow-indigo-600/10">
+      <header className="w-full flex items-center text-center justify-between border-b border-indigo-400 px-4 shadow-sm shadow-indigo-600/10">
         <div className="flex items-center gap-4">
           <Logo size={6} />
           <h1 className="text-3xl font-bold font-inter">Valle Pallet</h1>

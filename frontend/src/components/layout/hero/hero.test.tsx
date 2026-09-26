@@ -18,7 +18,7 @@ describe("Hero", () => {
     it("Deve renderizar corretamente", () => {
         render(<Hero />);
 
-        expect(screen.getByRole("main")).toBeInTheDocument();
+        expect(screen.getByRole("region", { name: /hero/i })).toBeInTheDocument();
     });
 
     it("Deve renderizar o MainText", () => {
@@ -53,7 +53,7 @@ describe("Hero", () => {
     it("Deve manter a estrutura principal do layout", () => {
         render(<Hero />);
 
-        const main = screen.getByRole("main");
+        const main = screen.getByRole("region", { name: /hero/i });
 
         expect(main).toContainElement(screen.getByTestId("main-text"));
         expect(main).toContainElement(screen.getByTestId("apresentation-hero"));
