@@ -23,7 +23,7 @@ export default function RoiCalculatorForm({onSubmit}: RoiCalculatorFormProps) {
         resolver: zodResolver(roiCalculatorSchema),
         defaultValues: {
             companyName: "Minha empresa",
-            vouchersPerYear: 100000,
+            vouchersPerYear: 1000000,
             vouchersCosts: 8,
             palletsPerTruck: 26,
             palletsCosts: 50,
@@ -52,7 +52,7 @@ export default function RoiCalculatorForm({onSubmit}: RoiCalculatorFormProps) {
             <RoiCalculatorFormField
                 id="vouchersPerYear"
                 label="Quantidade de vales pallets por ano (Unidades):"
-                placeholder="1000"
+                placeholder="1000000"
                 type="number"
                 register={register}
                 error={errors.vouchersPerYear}
