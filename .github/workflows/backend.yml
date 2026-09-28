@@ -1,0 +1,41 @@
+name: Backend PostgreSQL
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: bitfrost_test
+          POSTGRES_USER: bitfrost_test
+          POSTGRES_PASSWORD: local_test_only
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U bitfrost_test -d bitfrost_test"
+          --health-interval 2s --health-timeout 5s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql://bitfrost_test:local_test_only@127.0.0.1:5433/bitfrost_test?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm run test:guard
+      - run: npm test -- --ci
+      - name: Verify runtime dependencies after pruning development tools
+        run: |
+          npm prune --omit=dev --ignore-scripts
+          node -e "const {PrismaClient}=require('@prisma/client'); const client=new PrismaClient(); console.log('Prisma runtime available');"

@@ -4,12 +4,12 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-describe('API de Clientes - /api/clientes', () => {
-  let clienteId: string;
+describe('API de Transportadoras - /api/transportadoras', () => {
+  let transportadoraId: string;
 
-  // Limpa a tabela de clientes antes de todos os testes
+  // Limpa a tabela de transportadoras antes de todos os testes
   beforeAll(async () => {
-    await prisma.cliente.deleteMany({});
+    await prisma.transportadora.deleteMany({});
   });
 
   // Fecha a conexão com o banco após os testes
@@ -17,33 +17,33 @@ describe('API de Clientes - /api/clientes', () => {
     await prisma.$disconnect();
   });
 
-  it('deve criar um novo cliente', async () => {
+  it('deve criar uma nova transportadora', async () => {
     const response = await request(app)
-      .post('/api/clientes')
-      .send({ nome: 'Cliente de Teste' });
+      .post('/api/transportadoras')
+      .send({ nome: 'Transportadora de Teste' });
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('id');
-    expect(response.body.nome).toBe('Cliente de Teste');
+    expect(response.body.nome).toBe('Transportadora de Teste');
 
-    clienteId = response.body.id;
+    transportadoraId = response.body.id;
   });
 
-  it('deve listar todos os clientes', async () => {
-    const response = await request(app).get('/api/clientes');
+  it('deve listar todas as transportadoras', async () => {
+    const response = await request(app).get('/api/transportadoras');
 
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
-    expect(response.body.some((cliente: any) => cliente.id === clienteId)).toBe(true);
+    expect(response.body.some((transportadora: any) => transportadora.id === transportadoraId)).toBe(true);
   });
 
-  it('deve deletar um cliente', async () => {
-    const response = await request(app).delete(`/api/clientes/${clienteId}`);
+  it('deve deletar uma transportadora', async () => {
+    const response = await request(app).delete(`/api/transportadoras/${transportadoraId}`);
     expect(response.status).toBe(204);
 
-    // Verifica se o cliente foi realmente deletado
-    const allClientes = await prisma.cliente.findMany();
-    const clienteDeletado = allClientes.find((cliente) => cliente.id === clienteId);
-    expect(clienteDeletado).toBeUndefined();
+    // Verifica se a transportadora foi realmente deletada
+    const allTransportadoras = await prisma.transportadora.findMany();
+    const transportadoraDeletada = allTransportadoras.find((transportadora) => transportadora.id === transportadoraId);
+    expect(transportadoraDeletada).toBeUndefined();
   });
 });
