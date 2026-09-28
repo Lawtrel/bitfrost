@@ -19,31 +19,35 @@ Fluxo: **React → HTTP /api → Express → Prisma → PostgreSQL**.
 
 ## Preparar o ambiente
 
-Requisitos: Node.js com npm, Git e um banco **PostgreSQL local e descartável**.
+Requisitos: Node.js 22 com npm, Git e Docker Compose v2 com suporte a `--wait`.
 
 ```bash
 git clone https://github.com/Lawtrel/bitfrost.git
 cd bitfrost/backend
 ```
 
-Crie `backend/.env` com a URL do seu banco de desenvolvimento, substituindo os valores abaixo:
+Copie `backend/.env.example` para `backend/.env`. O exemplo corresponde aos dois serviços PostgreSQL locais do Compose. As credenciais são exclusivas desse ambiente descartável.
 
 ```dotenv
-DATABASE_URL="postgresql://USUARIO:SENHA@localhost:5432/bitfrost_dev?schema=public"
+DATABASE_URL="postgresql://bitfrost_dev:local_dev_only@127.0.0.1:5432/bitfrost_dev?schema=public"
+TEST_DATABASE_URL="postgresql://bitfrost_test:local_test_only@127.0.0.1:5433/bitfrost_test?schema=public"
 ```
 
-**Atenção à configuração atual:** o schema Prisma usa PostgreSQL, mas o `docker-compose.yml` do backend ainda define MySQL. Esse Compose precisa ser alinhado antes de servir como ambiente reproduzível. Para os passos abaixo, use uma instância PostgreSQL configurada separadamente.
+O Compose e as migrações Prisma usam PostgreSQL 16. O serviço `db` mantém dados no volume `postgres-dev-data`; `db_test` usa armazenamento temporário e só inicia quando solicitado. As portas são publicadas apenas em `127.0.0.1`. Para alterar as portas, defina `POSTGRES_PORT`/`POSTGRES_TEST_PORT` no `.env` e ajuste as URLs correspondentes.
+
+Quem usava o Compose anterior terá um banco de desenvolvimento novo. Os volumes antigos `db-data` e `db-test-data` não são apagados nem migrados por esses comandos. Não execute `down -v` para tentar recuperar dados antigos.
 
 Em um banco vazio destinado exclusivamente ao desenvolvimento:
 
 ```bash
-npm install
-npx prisma generate
-npx prisma db push
+npm ci
+npm run generate
+docker compose up -d --wait db
+npx prisma migrate deploy
 npm run dev
 ```
 
-A API utiliza `http://localhost:3001/api`. `db push` sincroniza o schema para exploração local; não substitui uma estratégia de migrações em ambientes com dados reais.
+A API utiliza `http://localhost:3001/api`. `migrate deploy` aplica as migrações versionadas; este roteiro não migra instalações existentes com dados reais.
 
 Em outro terminal, dentro de `frontend/`, crie `.env.local`:
 
@@ -71,14 +75,25 @@ Consulte as rotas e os testes do backend para os métodos e corpos de requisiç�
 
 ## Validação
 
-No backend, `npm run build` compila TypeScript e `npm test` executa Jest. No frontend, `npm run build` gera a aplicação e `npm run lint` verifica o código.
+Dentro de `backend/`, com `.env` configurado:
 
-**Os testes do backend apagam registros com `deleteMany`.** Antes de executá-los, configure `DATABASE_URL` para um banco de teste exclusivo e descartável, nunca para o banco de uso da aplicação. A existência dos testes não significa que a suíte esteja passando na configuração atual.
+```bash
+npm run build
+npm run test:guard
+docker compose --profile test up -d --wait db_test
+npm test
+docker compose --profile test stop db_test
+```
+
+`build` gera o Prisma Client e compila TypeScript. `test:guard` verifica a proteção de configuração sem acessar banco. `npm test` exige `TEST_DATABASE_URL`, valida o destino, substitui `DATABASE_URL` apenas no processo de testes, aplica migrações e executa Jest/Supertest em série. A inicialização do Jest repete a validação antes de importar os testes.
+
+**Os testes do backend apagam registros com `deleteMany`.** A proteção aceita somente endereço de loopback, banco e usuário `bitfrost_test` e schema `public`; parâmetros adicionais são rejeitados. Use exclusivamente dados descartáveis nesse banco. Essa validação evita erros comuns de configuração, mas não substitui o isolamento do servidor: o Compose executa desenvolvimento e testes em instâncias distintas.
+
+O workflow [Backend PostgreSQL](https://github.com/Lawtrel/bitfrost/actions/workflows/backend.yml) executa instalação pelo lockfile, build, testes da proteção e testes da API com PostgreSQL 16, além de verificar a disponibilidade do Prisma Client após remover dependências de desenvolvimento. O backend deve ser compilado antes de `npm prune --omit=dev --ignore-scripts`; `npm start` usa os artefatos já gerados.
+
+No frontend, `npm run build` gera a aplicação e `npm run lint` verifica o código. Esses comandos e a integração visual não fazem parte da validação deste workflow.
 
 ## Próximas entregas
 
-- Unificar PostgreSQL, Compose e instruções de inicialização.
-- Separar bancos de desenvolvimento/teste e automatizar a execução dos testes em CI.
-- Revisar as dependências de execução: `@prisma/client` está em `devDependencies`.
 - Validar autenticação e autorização das operações administrativas antes de disponibilizar dados reais.
 - Registrar uma demonstração reproduzível do fluxo cadastro → emissão de vale → alteração de status.
