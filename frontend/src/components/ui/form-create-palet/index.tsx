@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import  Button  from "@/components/ui/button/button";
+import  Button  from "@/components/ui/Button/button";
 import { Cliente, Transportadora } from "@/pages/CriarVale";
 import ClienteSearch from "@/components/ClientSearch";
 import TransportadoraSearch from "@/components/TransportadoraSearch";

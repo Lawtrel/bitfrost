@@ -91,7 +91,7 @@ docker compose --profile test stop db_test
 
 O workflow [Backend PostgreSQL](https://github.com/Lawtrel/bitfrost/actions/workflows/backend.yml) executa instalação pelo lockfile, build, testes da proteção e testes da API com PostgreSQL 16, além de verificar a disponibilidade do Prisma Client após remover dependências de desenvolvimento. O backend deve ser compilado antes de `npm prune --omit=dev --ignore-scripts`; `npm start` usa os artefatos já gerados.
 
-No frontend, `npm run build` gera a aplicação e `npm run lint` verifica o código. Esses comandos e a integração visual não fazem parte da validação deste workflow.
+No frontend, `npm run typecheck` verifica os tipos da aplicação, dos testes e da configuração Vite; `npm run test:run` executa a suíte sem modo de observação. `npm run build` exige a checagem de tipos antes de gerar a aplicação. `npm run lint` verifica as regras de estilo. Esses comandos e a integração visual não fazem parte do workflow de backend.
 
 ## Próximas entregas
 

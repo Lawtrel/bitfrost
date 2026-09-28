@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import RoiCalculatorForm from "./roiCalculatorForm";
 
-vi.mock("@/components/ui/button/button", () => ({
+vi.mock("@/components/ui/Button/button", () => ({
     default: ({
         children,
         type,

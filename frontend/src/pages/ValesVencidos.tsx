@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card/card";
 import { Badge } from "@/components/ui/badge";
-import  Button  from "@/components/ui/button/button";
+import  Button  from "@/components/ui/Button/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";

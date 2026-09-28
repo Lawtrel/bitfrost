@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Button from "@/components/ui/button/button";
+import Button from "@/components/ui/Button/button";
 import { useLoginForm } from "@/hooks/loginForm/useLoginForm";
 
 export default function LoginForm() {

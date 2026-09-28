@@ -38,6 +38,8 @@ describe("RoiResult", () => {
         totalLossCostWithValePallet: 5000,
         totalSavings: 65000,
         totalInvestment: 100000,
+        implementationCost: 80000,
+        maintenanceCost: 20000,
         paybackMonths: 18.5,
         roi: 250,
         recommendation: "Excelente investimento.",

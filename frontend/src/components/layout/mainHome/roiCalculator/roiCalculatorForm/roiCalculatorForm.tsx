@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import Button from "@/components/ui/button/button";
+import Button from "@/components/ui/Button/button";
 import { roiCalculatorSchema, RoiCalculatorSchema } from "./roiCalculatorSchema";
 import { useState } from "react";
 import RoiCalculatorFormService from "./roiCalculatorFormService";

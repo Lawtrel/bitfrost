@@ -1,6 +1,6 @@
 import { useCarousel } from "@/hooks/carousel/useCarouselContext";
 import { ChevronLeft } from "lucide-react";
-import Button from "../../button/button";
+import Button from "../../Button/button";
 
 
 interface CarouselControlsProps {

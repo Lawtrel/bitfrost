@@ -5,7 +5,7 @@ import RoiCalculatorFormService from "./roiCalculatorFormService";
 import { RoiCalculatorSchema } from "./roiCalculatorSchema";
 import { useForm } from "react-hook-form";
 
-vi.mock("@/components/ui/button/button", () => ({
+vi.mock("@/components/ui/Button/button", () => ({
     default: ({
         children,
         onClick,

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import  Button  from "@/components/ui/button/button";
+import  Button  from "@/components/ui/Button/button";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import {

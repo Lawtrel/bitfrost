@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card} from "@/components/ui/card/card";
-import  Button  from "@/components/ui/button/button";
+import  Button  from "@/components/ui/Button/button";
 import { useToast } from "@/hooks/use-toast";
 import { deleteCliente, deleteTransportadora, deleteUsuario, getClientes, getTransportadoras, getUsuariosByStatus, updateUsuariosByRole, updateUsuariosByStatus } from "@/services/api";
 import { useNavigate } from "react-router-dom";
