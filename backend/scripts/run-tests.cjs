@@ -1,10 +1,12 @@
 const { spawnSync } = require('node:child_process');
 const path = require('node:path');
+const { randomBytes } = require('node:crypto');
 require('dotenv').config({ quiet: true });
 const { configureTestDatabase } = require('./test-database.cjs');
 
 try {
   configureTestDatabase(process.env);
+  process.env.JWT_SECRET = randomBytes(32).toString('hex');
 } catch (error) {
   console.error(error.message);
   process.exit(1);

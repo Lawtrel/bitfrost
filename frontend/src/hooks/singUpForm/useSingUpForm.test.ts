@@ -44,8 +44,8 @@ describe('useSingUpForm', () => {
     act(() => {
       result.current.handleChange('nome', 'João');
       result.current.handleChange('email', 'joao@gmail.com');
-      result.current.handleChange('senha', '123456');
-      result.current.handleChange('confirmarSenha', '123456');
+      result.current.handleChange('senha', 'senha1234');
+      result.current.handleChange('confirmarSenha', 'senha1234');
       result.current.handleChange('role', 'consultor');
     });
 
@@ -66,8 +66,8 @@ describe('useSingUpForm', () => {
     act(() => {
       result.current.handleChange('nome', 'João da Silva');
       result.current.handleChange('email', 'joao@heineken.com');
-      result.current.handleChange('senha', '123456');
-      result.current.handleChange('confirmarSenha', '123456');
+      result.current.handleChange('senha', 'senha1234');
+      result.current.handleChange('confirmarSenha', 'senha1234');
       result.current.handleChange('role', 'consultor');
     });
 
@@ -80,7 +80,7 @@ describe('useSingUpForm', () => {
       expect(mockCreateUsuario).toHaveBeenCalledWith({
         nome: 'João da Silva',
         email: 'joao@heineken.com',
-        senha: '123456',
+        senha: 'senha1234',
         role: 'consultor',
         status: 'pendente',
       });
@@ -94,7 +94,7 @@ describe('useSingUpForm', () => {
     );
   });
 
-  it('deve bloquear cadastro quando já existe administrador', async () => {
+  it('deve bloquear cadastro público de administrador', async () => {
     mockGetUsuariosByRole.mockResolvedValue({ data: [{ id: 'adm-1' }] });
 
     const { result } = renderHook(() => useSingUpForm());
@@ -102,8 +102,8 @@ describe('useSingUpForm', () => {
     act(() => {
       result.current.handleChange('nome', 'Maria');
       result.current.handleChange('email', 'maria@heineken.com');
-      result.current.handleChange('senha', '123456');
-      result.current.handleChange('confirmarSenha', '123456');
+      result.current.handleChange('senha', 'senha1234');
+      result.current.handleChange('confirmarSenha', 'senha1234');
       result.current.handleChange('role', 'adm');
     });
 
@@ -115,7 +115,7 @@ describe('useSingUpForm', () => {
     expect(mockCreateUsuario).not.toHaveBeenCalled();
     expect(mockToast).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: '❌ Ação não permitida',
+        title: '❌ Selecione um cargo',
       })
     );
   });

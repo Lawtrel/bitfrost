@@ -1,19 +1,31 @@
-// src/hooks/useAuth.tsx
-import { useState, useEffect } from 'react';
-
-// Esta é uma versão SIMPLIFICADA para substituir o hook do Firebase.
-// Em uma aplicação real, você usaria Context API ou Zustand/Redux
-// para gerenciar o estado de autenticação e o token JWT.
+import { useEffect, useState } from 'react';
+import { clearSession, getSession, SESSION_CLEARED, type Usuario } from '@/services/api';
 
 export const useAuth = () => {
-  // Simula um usuário logado. Troque para `false` para simular um usuário deslogado.
-  const [isAuthenticated, setIsAuthenticated] = useState(true); 
-  const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<{ email: string } | null>({ email: "admin@symbolon.com" });
+  const [user, setUser] = useState<Usuario | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Você pode adicionar funções de login/logout aqui que interagem com sua API
-  // const login = async (email, password) => { ... };
-  // const logout = () => { ... };
+  useEffect(() => {
+    let active = true;
+    const endSession = () => {
+      // Invalida também uma consulta de sessão que ainda esteja em andamento.
+      active = false;
+      setUser(null);
+      setLoading(false);
+    };
+    window.addEventListener(SESSION_CLEARED, endSession);
+    getSession().then(({ data }) => {
+      if (!active) return;
+      localStorage.setItem('usuario', JSON.stringify(data));
+      setUser(data);
+    }).catch(() => {
+      if (active) clearSession();
+    }).finally(() => { if (active) setLoading(false); });
+    return () => {
+      active = false;
+      window.removeEventListener(SESSION_CLEARED, endSession);
+    };
+  }, []);
 
-  return { user, loading, isAuthenticated };
+  return { user, loading, isAuthenticated: user !== null };
 };

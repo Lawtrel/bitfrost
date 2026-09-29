@@ -1,8 +1,10 @@
+import { loginTestAdmin } from './helpers/auth';
 import request from 'supertest';
 import app from '../src/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
+let token: string;
 
 describe('API de Transportadoras - /api/transportadoras', () => {
   let transportadoraId: string;
@@ -10,6 +12,7 @@ describe('API de Transportadoras - /api/transportadoras', () => {
   // Limpa a tabela de transportadoras antes de todos os testes
   beforeAll(async () => {
     await prisma.transportadora.deleteMany({});
+    token = await loginTestAdmin(prisma, "transportadora");
   });
 
   // Fecha a conexão com o banco após os testes
@@ -19,7 +22,7 @@ describe('API de Transportadoras - /api/transportadoras', () => {
 
   it('deve criar uma nova transportadora', async () => {
     const response = await request(app)
-      .post('/api/transportadoras')
+      .post('/api/transportadoras').auth(token, { type: 'bearer' })
       .send({ nome: 'Transportadora de Teste' });
 
     expect(response.status).toBe(201);
@@ -30,7 +33,7 @@ describe('API de Transportadoras - /api/transportadoras', () => {
   });
 
   it('deve listar todas as transportadoras', async () => {
-    const response = await request(app).get('/api/transportadoras');
+    const response = await request(app).get('/api/transportadoras').auth(token, { type: 'bearer' });
 
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
@@ -38,7 +41,7 @@ describe('API de Transportadoras - /api/transportadoras', () => {
   });
 
   it('deve deletar uma transportadora', async () => {
-    const response = await request(app).delete(`/api/transportadoras/${transportadoraId}`);
+    const response = await request(app).delete(`/api/transportadoras/${transportadoraId}`).auth(token, { type: 'bearer' });
     expect(response.status).toBe(204);
 
     // Verifica se a transportadora foi realmente deletada

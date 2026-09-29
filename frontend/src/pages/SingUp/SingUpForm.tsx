@@ -57,7 +57,6 @@ export default function SingUpForm() {
             className="w-full border border-gray-300 rounded-md h-12 px-3 text-gray-700"
           >
             <option value="selecione">Selecione um cargo</option>
-            <option value="adm">Administrador</option>
             <option value="supervisor">Supervisor</option>
             <option value="consultor">Consultor</option>
           </select>

@@ -1,4 +1,7 @@
+import 'dotenv/config';
 import express from 'express';
+import { authSecret } from './auth/token';
+import { requireAuth } from './auth/middleware';
 import cors from 'cors';
 import valeRoutes from './routes/valeRoutes';
 import clienteRoutes from './routes/clienteRoutes';
@@ -6,6 +9,7 @@ import transportadoraRoutes from './routes/transportadoraRoutes';
 import adminRoutes from './routes/adminRoutes';
 
 const app = express();
+authSecret();
 
 app.use(cors());
 
@@ -36,9 +40,9 @@ ${asciiArt}
   `);
 });
 
-app.use('/api/vales', valeRoutes);
-app.use('/api/clientes', clienteRoutes);
-app.use('/api/transportadoras', transportadoraRoutes);
+app.use('/api/vales', requireAuth, valeRoutes);
+app.use('/api/clientes', requireAuth, clienteRoutes);
+app.use('/api/transportadoras', requireAuth, transportadoraRoutes);
 app.use('/api/admins', adminRoutes);
 
 const PORT = process.env.PORT || 3001;

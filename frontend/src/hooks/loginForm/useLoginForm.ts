@@ -55,7 +55,7 @@ export function useLoginForm() {
 
     try {
       const response = await loginUsuario(form.email, form.senha);
-      const usuario = response.data;
+      const { user: usuario, token } = response.data;
 
       if (usuario.status !== "ativo") {
         toast({
@@ -66,6 +66,8 @@ export function useLoginForm() {
         return false;
       }
 
+      if (!token) throw new Error('O servidor não retornou uma sessão válida.');
+      sessionStorage.setItem('accessToken', token);
       localStorage.setItem("usuario", JSON.stringify(usuario));
       localStorage.setItem("admId", usuario.id);
 
@@ -77,8 +79,6 @@ export function useLoginForm() {
       navigate("/dashboard");
       return true;
     } catch (error: unknown) {
-      console.error(error);
-
       const message =
         (error as { response?: { data?: { error?: string } } })?.response?.data?.error ||
         "Erro ao tentar fazer login.";

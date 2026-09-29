@@ -34,6 +34,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run test:guard
+      - run: npm run test:auth
       - run: npm test -- --ci
       - name: Verify runtime dependencies after pruning development tools
         run: |

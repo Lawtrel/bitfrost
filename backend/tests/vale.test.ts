@@ -1,14 +1,17 @@
+import { loginTestAdmin } from './helpers/auth';
 import request from 'supertest';
 import app from '../src/server';
 import { PrismaClient } from '@prisma/client'; // REMOVIDO A IMPORTAÇÃO DO VALE
 
 const prisma = new PrismaClient();
+let token: string;
 
 describe('API de Vales - /api/vales', () => {
   let valeId: string;
 
   beforeAll(async () => {
     await prisma.vale.deleteMany({});
+    token = await loginTestAdmin(prisma, "vale");
   });
 
   afterAll(async () => {
@@ -17,7 +20,7 @@ describe('API de Vales - /api/vales', () => {
 
   it('deve criar um novo vale', async () => {
     const response = await request(app)
-      .post('/api/vales')
+      .post('/api/vales').auth(token, { type: 'bearer' })
       .send({
         cliente: 'Cliente Teste',
         transportadora: 'Transportadora Teste',
@@ -36,7 +39,7 @@ describe('API de Vales - /api/vales', () => {
   });
 
   it('deve listar todos os vales', async () => {
-    const response = await request(app).get('/api/vales');
+    const response = await request(app).get('/api/vales').auth(token, { type: 'bearer' });
 
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
@@ -45,10 +48,10 @@ describe('API de Vales - /api/vales', () => {
   });
 
   it('deve deletar um vale', async () => {
-    const response = await request(app).delete(`/api/vales/${valeId}`);
+    const response = await request(app).delete(`/api/vales/${valeId}`).auth(token, { type: 'bearer' });
     expect(response.status).toBe(204);
 
-    const getResponse = await request(app).get(`/api/vales/${valeId}`);
+    const getResponse = await request(app).get(`/api/vales/${valeId}`).auth(token, { type: 'bearer' });
     expect(getResponse.status).toBe(404);
   });
 });

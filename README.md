@@ -33,6 +33,8 @@ DATABASE_URL="postgresql://bitfrost_dev:local_dev_only@127.0.0.1:5432/bitfrost_d
 TEST_DATABASE_URL="postgresql://bitfrost_test:local_test_only@127.0.0.1:5433/bitfrost_test?schema=public"
 ```
 
+Defina também `JWT_SECRET` no `backend/.env`. Gere um segredo local com `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"` e copie o resultado para essa variável. Não versione o `.env` nem compartilhe esse valor. A API recusa iniciar sem um segredo de pelo menos 32 bytes.
+
 O Compose e as migrações Prisma usam PostgreSQL 16. O serviço `db` mantém dados no volume `postgres-dev-data`; `db_test` usa armazenamento temporário e só inicia quando solicitado. As portas são publicadas apenas em `127.0.0.1`. Para alterar as portas, defina `POSTGRES_PORT`/`POSTGRES_TEST_PORT` no `.env` e ajuste as URLs correspondentes.
 
 Quem usava o Compose anterior terá um banco de desenvolvimento novo. Os volumes antigos `db-data` e `db-test-data` não são apagados nem migrados por esses comandos. Não execute `down -v` para tentar recuperar dados antigos.
@@ -73,6 +75,24 @@ Abra o endereço mostrado pelo Vite. O script `server` do frontend inicia um moc
 
 Consulte as rotas e os testes do backend para os métodos e corpos de requisição disponíveis.
 
+## Autenticação e permissões
+
+O login (`POST /api/admins/login`) retorna `{ user, token, expiresIn }`. Envie o token em `Authorization: Bearer <token>`; ele expira em 15 minutos. `GET /api/admins/me` retorna o usuário atual. A API consulta cargo e status no banco em cada requisição: desativar ou excluir uma conta bloqueia seu próximo acesso, mesmo com token ainda válido.
+
+| Operação | Acesso |
+| --- | --- |
+| Cadastro e login | Público; cadastro aceita consultor/supervisor e força status pendente |
+| Consultar vales, clientes e transportadoras | Qualquer conta ativa autenticada |
+| Criar, atualizar, anexar arquivo ou excluir vale | Supervisor ou administrador |
+| Criar/excluir clientes e transportadoras | Administrador |
+| Listar usuários, aprovar, mudar cargo ou excluir conta | Administrador |
+
+O cadastro mantém a regra existente de emails `heineken.com`/`heiway.net`. Isso é uma validação de formato e domínio, não uma confirmação de propriedade do email. A aprovação manual continua necessária.
+
+Para criar o primeiro administrador em um banco de desenvolvimento preparado, execute `npm run build` dentro de `backend/`, defina `ADMIN_NAME`, `ADMIN_EMAIL` e `ADMIN_PASSWORD` no ambiente local e execute `npm run admin:create`. Use senha própria com pelo menos 12 caracteres e no máximo 72 bytes UTF-8. Também é possível definir essas três variáveis no `.env` local ignorado pelo Git; remova-as após a criação. O script recusa executar se já existir qualquer conta com cargo `adm` e não altera contas existentes. Nunca execute esse provisionamento contra um banco sem autorização. Administradores seguintes podem ser promovidos pela gestão de usuários autenticada.
+
+A interface guarda o token em `sessionStorage` e confirma a sessão na API antes de abrir o painel. Os dados de apresentação em `localStorage` não concedem permissões. Ao receber HTTP 401, limpa a sessão e retorna ao login. Sair encerra a sessão no navegador; não revoga uma cópia do token antes dos 15 minutos. Não há renovação automática, verificação de email nem limitação de tentativas de login nesta entrega.
+
 ## Validação
 
 Dentro de `backend/`, com `.env` configurado:
@@ -80,20 +100,21 @@ Dentro de `backend/`, com `.env` configurado:
 ```bash
 npm run build
 npm run test:guard
+npm run test:auth
 docker compose --profile test up -d --wait db_test
 npm test
 docker compose --profile test stop db_test
 ```
 
-`build` gera o Prisma Client e compila TypeScript. `test:guard` verifica a proteção de configuração sem acessar banco. `npm test` exige `TEST_DATABASE_URL`, valida o destino, substitui `DATABASE_URL` apenas no processo de testes, aplica migrações e executa Jest/Supertest em série. A inicialização do Jest repete a validação antes de importar os testes.
+`build` gera o Prisma Client e compila TypeScript. `test:guard` verifica a proteção de configuração sem acessar banco. `test:auth` testa rotas HTTP, JWT e permissões com o Prisma simulado, sem acessar PostgreSQL. `npm test` exige `TEST_DATABASE_URL`, valida o destino, substitui `DATABASE_URL` apenas no processo de testes, gera um segredo JWT temporário, aplica migrações e executa Jest/Supertest em série. Os testes de integração criam contas apenas no banco descartável e obtêm tokens pelo login real da API. A inicialização do Jest repete a validação antes de importar os testes.
 
 **Os testes do backend apagam registros com `deleteMany`.** A proteção aceita somente endereço de loopback, banco e usuário `bitfrost_test` e schema `public`; parâmetros adicionais são rejeitados. Use exclusivamente dados descartáveis nesse banco. Essa validação evita erros comuns de configuração, mas não substitui o isolamento do servidor: o Compose executa desenvolvimento e testes em instâncias distintas.
 
-O workflow [Backend PostgreSQL](https://github.com/Lawtrel/bitfrost/actions/workflows/backend.yml) executa instalação pelo lockfile, build, testes da proteção e testes da API com PostgreSQL 16, além de verificar a disponibilidade do Prisma Client após remover dependências de desenvolvimento. O backend deve ser compilado antes de `npm prune --omit=dev --ignore-scripts`; `npm start` usa os artefatos já gerados.
+O workflow [Backend PostgreSQL](https://github.com/Lawtrel/bitfrost/actions/workflows/backend.yml) executa instalação pelo lockfile, build, testes da proteção, testes de autenticação e testes da API com PostgreSQL 16, além de verificar a disponibilidade do Prisma Client após remover dependências de desenvolvimento. O backend deve ser compilado antes de `npm prune --omit=dev --ignore-scripts`; `npm start` usa os artefatos já gerados.
 
 No frontend, `npm run typecheck` verifica os tipos da aplicação, dos testes e da configuração Vite; `npm run test:run` executa a suíte sem modo de observação. `npm run build` exige a checagem de tipos antes de gerar a aplicação. `npm run lint` verifica as regras de estilo. Esses comandos e a integração visual não fazem parte do workflow de backend.
 
 ## Próximas entregas
 
-- Validar autenticação e autorização das operações administrativas antes de disponibilizar dados reais.
+- Executar a integração autenticada em PostgreSQL e validar o fluxo completo pela interface antes de disponibilizar dados reais.
 - Registrar uma demonstração reproduzível do fluxo cadastro → emissão de vale → alteração de status.

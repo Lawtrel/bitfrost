@@ -29,6 +29,7 @@ describe('useLoginForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
+    sessionStorage.clear();
   });
 
   it('deve bloquear login com campos vazios', () => {
@@ -47,10 +48,13 @@ describe('useLoginForm', () => {
   it('deve realizar login com sucesso quando usuário está ativo', async () => {
     mockLoginUsuario.mockResolvedValue({
       data: {
+        token: 'token-de-teste',
+        user: {
         id: '1',
         nome: 'Admin Teste',
         email: 'admin@teste.com',
         status: 'ativo',
+        },
       },
     });
 
@@ -72,15 +76,18 @@ describe('useLoginForm', () => {
 
     expect(localStorage.getItem('usuario')).toContain('Admin Teste');
     expect(localStorage.getItem('admId')).toBe('1');
+    expect(sessionStorage.getItem('accessToken')).toBe('token-de-teste');
   });
 
   it('deve bloquear login quando usuário não está ativo', async () => {
     mockLoginUsuario.mockResolvedValue({
       data: {
+        user: {
         id: '2',
         nome: 'Usuário',
         email: 'teste@heineken.com',
         status: 'pendente',
+        },
       },
     });
 

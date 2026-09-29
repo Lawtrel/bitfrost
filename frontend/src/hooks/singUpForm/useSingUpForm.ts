@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import {
   createUsuario,
-  getUsuariosByEmail,
-  getUsuariosByRole,
 } from "@/services/api";
 
 export type SingUpFormData = {
@@ -95,7 +93,13 @@ export function useSingUpForm() {
       return message;
     }
 
-    if (form.role === "" || form.role === "selecione") {
+    if (form.senha.length < 8 || new TextEncoder().encode(form.senha).length > 72) {
+      const message = { valid: false, title: '❌ Senha inválida', description: 'Use pelo menos 8 caracteres e no máximo 72 bytes.' };
+      toast({ ...message, variant: 'destructive' });
+      return message;
+    }
+
+    if (!["consultor", "supervisor"].includes(form.role)) {
       const message = {
         valid: false,
         title: "❌ Selecione um cargo",
@@ -124,30 +128,6 @@ export function useSingUpForm() {
     setLoading(true);
 
     try {
-      if (form.role === "adm") {
-        const { data: admins } = await getUsuariosByRole("adm");
-
-        if (admins.length > 0) {
-          toast({
-            title: "❌ Ação não permitida",
-            description: "Já existe um administrador cadastrado.",
-            variant: "destructive",
-          });
-          return false;
-        }
-      }
-
-      const { data: usuariosExistentes } = await getUsuariosByEmail(form.email);
-
-      if (usuariosExistentes.length > 0) {
-        toast({
-          title: "❌ Email em uso",
-          description: "Já existe um usuário cadastrado com este email.",
-          variant: "destructive",
-        });
-        return false;
-      }
-
       await createUsuario({
         nome: form.nome,
         email: form.email,
@@ -165,10 +145,8 @@ export function useSingUpForm() {
       setTimeout(() => navigate("/login"), 2000);
       return true;
     } catch (error: unknown) {
-      console.error(error);
-
       const erroMsg =
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (error as { response?: { data?: { error?: string } } })?.response?.data?.error ||
         "Erro inesperado ao cadastrar. Tente novamente.";
 
       toast({

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { requireAdmin } from '../auth/middleware';
 import {
   createCliente,
   getAllClientes,
@@ -7,8 +8,8 @@ import {
 
 const router = Router();
 
-router.post('/', createCliente);
+router.post('/', requireAdmin, createCliente);
 router.get('/', getAllClientes);
-router.delete('/:id', deleteCliente);
+router.delete('/:id', requireAdmin, deleteCliente);
 
 export default router;

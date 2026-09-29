@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { requireAdmin } from '../auth/middleware';
 import {
   createTransportadora,
   getAllTransportadoras,
@@ -7,8 +8,8 @@ import {
 
 const router = Router();
 
-router.post('/', createTransportadora);
+router.post('/', requireAdmin, createTransportadora);
 router.get('/', getAllTransportadoras);
-router.delete('/:id', deleteTransportadora);
+router.delete('/:id', requireAdmin, deleteTransportadora);
 
 export default router;
