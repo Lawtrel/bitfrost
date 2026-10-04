@@ -50,7 +50,7 @@ const HOST = process.env.HOST || 'localhost';
 
 
 if (process.env.NODE_ENV !== 'test') {
-    app.listen(PORT, () => {
+    app.listen(Number(PORT), HOST, () => {
         console.log(`Server is running on port http://${HOST}:${PORT}`);
     });
 }

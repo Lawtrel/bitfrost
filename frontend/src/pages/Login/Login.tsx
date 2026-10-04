@@ -6,14 +6,14 @@ import LoginForm from "./LoginForm";
 export default function Login() {
   return (
     <>
-      <section className="flex h-[90vh] gap-[150px] pt-16 relative w-full">
+      <section className="flex flex-col lg:flex-row min-h-[90vh] gap-10 lg:gap-16 px-6 lg:px-12 py-12 relative w-full">
         <img className="absolute h-full top-0 object-cover z-[-1] w-full" src="/assets/Hero Bifrost.png" alt="Imagem de fundo do Hero" />
-        <div className="flex flex-col w-[35%] pl-40 items-start h-full gap-6">
+        <div className="flex flex-col w-full lg:w-1/2 max-w-xl mx-auto items-start gap-6">
           <div className="w-12 h-12 bg-black bg-opacity-10 rounded-md flex text-blue-800 items-center justify-center">
             <ShieldCheck />
           </div>
                 <p className="text-blue-600 uppercase font-bold text-sm">Bem vindo de volta</p>
-                <h1 className="text-5xl font-bold text-blue-900">A gestão dos seus pallets, <span className="bg-gradient-to-r from-blue-800 to-purple-400 bg-clip-text text-transparent">mais simples e eficiente</span></h1>
+                <h1 className="text-3xl sm:text-5xl font-bold text-blue-900">A gestão dos seus pallets, <span className="bg-gradient-to-r from-blue-800 to-purple-400 bg-clip-text text-transparent">mais simples e eficiente</span></h1>
                 <p className="text-gray-600 opacity-80 font-semibold">
                   Acesse sua conta e tenha controle total da sua operação, com dados em tempo real, relatórios inteligentes e muito mais.
                 </p>
@@ -24,7 +24,7 @@ export default function Login() {
                   <li className="flex items-center gap-2 text-blue-600"><ShieldCheck /> Mais controle e Eficiência </li>
                 </ol>
         </div>
-        <div className="flex w-1/3 h-[65%]"> 
+        <div className="flex w-full lg:w-1/2 max-w-lg mx-auto self-start">
           <Card
             headerClassName="items-center justify-center text-center ml-0"
             cardIcon={<UserRoundCheck />}

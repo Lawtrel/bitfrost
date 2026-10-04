@@ -71,7 +71,7 @@ const Layout = () => {
     // CORREÇÃO: Envolvemos tudo com o SidebarProvider
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-gray-50 to-blue-50">
-        <AppSidebar />
+        <AppSidebar role={usuario.role} />
         <div className="flex-1 flex flex-col">
           <header className="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm">
             <div className="flex items-center gap-4">

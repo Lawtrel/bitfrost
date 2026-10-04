@@ -6,7 +6,6 @@ import {
   Archive,
   Plus,
   TrendingUp,
-  Calendar,
 } from "lucide-react";
 import {
   Sidebar,
@@ -62,15 +61,6 @@ const menuItems = [
     noborder: "border-r-4 bg-gray-50 border-gray-400",
   },
   {
-    title: "Apontamentos",
-    url: "/dashboard/apontamento-vale",
-    icon: Calendar,
-    description: "Registrar movimentações",
-    color: "text-orange-600",
-    border: "border-r-4 bg-gray-50 border-orange-600",
-    noborder: "border-r-4 bg-gray-50 border-gray-400",
-  },
-  {
     title: "Criar Vale",
     url: "/dashboard/criar-vale",
     icon: Plus,
@@ -90,32 +80,15 @@ const menuItems = [
   },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ role }: { role: string }) {
   const { state } = useSidebar();
-  const [activeItem, setActiveItem] = useState<string | null>(null);
   const [online, setOnline] = useState(false);
-  const handleFocus = (itemTitle: string) => {
-    setActiveItem(itemTitle); // Atualiza o item ativo ao clicar
-  };
   const collapsed = state === "collapsed";
-  const [usuarioLogado, setUsuarioLogado] = useState<{ email: string; role: string } | null>(null);
     const [status, setStatus] = useState({
     ativos: 0,
     processadosHoje: 0,
     vencidos: 0,
   });
-  useEffect(() => {
-    const usuarioInfo = localStorage.getItem("usuario");
-    if (usuarioInfo) {
-      try {
-        const usuarioParse = JSON.parse(usuarioInfo);
-        setUsuarioLogado({ email: usuarioParse.email, role: usuarioParse.role });
-      } catch (error) {
-        console.error("Erro ao ler usuário do localStorage", error);
-        setUsuarioLogado(null);
-      }
-    }
-  }, []);
   useEffect(() => {
     const fetchStatus = async () => {
       try {
@@ -144,27 +117,10 @@ export function AppSidebar() {
     fetchStatus();
   }, []);
 
-  const menuFiltrado = menuItems.filter((item) => {
-    if (!usuarioLogado) return false;
-
-    // Itens exclusivos para adm
-    const admOnly = ["AprovaADM"];
-    // Itens exclusivos para supervisor
-    const supervisorOnly = ["BaixarVale", "CriarVale", "ApontamentoVale", "ValesVencidos"];
-
-    // Aqui você precisa relacionar títulos com roles
-    if (item.title === "Dashboard") return true;
-    if (item.title === "Vales Acumulados") return true; // Dashboard visível para todos
-    if (usuarioLogado.role === "adm") return true; // Adm vê tudo
-    if (usuarioLogado.role === "supervisor") {
-      // Supervisor não vê itens de admin, mas vê supervisorOnly
-      if (admOnly.includes(item.title)) return false;
-      return true;
-    }
-
-    // Outros roles não vêem nada
-    return false;
-  });
+  const menuFiltrado = menuItems.filter(item =>
+    role === 'adm' || role === 'supervisor'
+    || item.url === '/dashboard' || item.url === '/dashboard/vales-acumulados'
+  );
   return (
     <Sidebar className="border-r border-gray-200 bg-white shadow-lg">
       <SidebarHeader className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
