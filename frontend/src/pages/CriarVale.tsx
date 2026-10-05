@@ -75,8 +75,8 @@ const CriarVale = () => {
     const valeData = {
       cliente: formData.cliente,
       transportadora: formData.transportadora,
-      quantidade: parseInt(formData.quantidade) || 0,
-      valorUnitario: parseFloat(formData.valorUnitario) || 0,
+      quantidade: Number(formData.quantidade),
+      valorUnitario: Number(formData.valorUnitario),
       dataVencimento: dataVencimentoCorreta.toISOString(),
       observacoes: formData.observacoes || "",
       status: "acumulado",

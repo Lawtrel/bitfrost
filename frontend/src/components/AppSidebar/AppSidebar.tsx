@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/sidebar-button/sidebar";
 import { useEffect, useState } from "react";
 import { getVales, VALES_CHANGED } from "@/services/api";
+import { isValeOverdue } from '@/utils/valeDate';
 
 
 const menuItems = [
@@ -102,8 +103,7 @@ export function AppSidebar({ role }: { role: string }) {
         const processadosCount = data.data.filter((vale) => vale.status === "processado").length;
 
         // 🔹 Vales vencidos
-        const vencidosCount = data.data.filter((vale) => vale.status === "vencido" ||
-          (vale.status === "acumulado" && new Date(vale.dataVencimento).getTime() < Date.now())).length;
+        const vencidosCount = data.data.filter(vale => isValeOverdue(vale)).length;
 
         if (cancelled) return;
         setStatus({

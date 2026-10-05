@@ -1,3 +1,4 @@
+import { createValePdf } from '@/utils/valePdf';
 import ValeDetails from '@/components/ValeDetails';
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card/card";
@@ -6,8 +7,6 @@ import { Eye, Download, Search, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label"; // Importando o Label
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import {
   Dialog,
   DialogContent,
@@ -31,14 +30,13 @@ const ValesProcessados = () => {
     const fetchVales = async () => {
       setError(null);
       try {
-        // A mágica acontece aqui: buscando os vales 'processados' do Firebase
         const fetchVales = await getVales();
         const data = fetchVales.data.filter((vale) => vale.status === "processado");
         setVales(data);
-        console.log(data);
-        setLoading(false);
       } catch (e) {
         setError("Falha ao carregar os vales processados.");
+      } finally {
+        setLoading(false);
       }
     };
     fetchVales();
@@ -49,29 +47,7 @@ const ValesProcessados = () => {
   };
 
   const baixarPDF = (vale: Vale) => {
-    const doc = new jsPDF();
-    const dataVencimentoFormatada = vale.dataVencimento
-        ? new Date(vale.dataVencimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
-        : '-';
-
-    doc.setFontSize(18);
-    doc.text(`Detalhes do Vale Processado - VP-${vale.id}`, 14, 22);
-
-    autoTable(doc, {
-      startY: 30,
-      head: [["Campo", "Valor"]],
-      body: [
-        ["Cliente", vale.cliente || "-"],
-        ["Transportadora", vale.transportadora || "-"],
-        ["Quantidade", `${vale.quantidade || 0} paletes`],
-        ["Valor Unitário", `R$ ${vale.valorUnitario?.toFixed(2) || '0.00'}`],
-        ["Data de Vencimento", dataVencimentoFormatada],
-        ["Observações", vale.observacoes || "-"]
-      ],
-      theme: 'striped'
-    });
-
-    doc.save(`vale-processado-${vale.id}.pdf`);
+    createValePdf(vale, "Vale processado").save(`vale-processado-${vale.id}.pdf`);
   };
 
   const valesFiltrados = vales.filter(vale => {
