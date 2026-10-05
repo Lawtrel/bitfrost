@@ -1,10 +1,8 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 // CORREÇÃO: Adicionamos SidebarProvider e garantimos que AppSidebar é uma importação nomeada
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar-button/sidebar";
-import { AppSidebar } from "@/components/AppSidebar/AppSidebar"; 
-import { Bell } from "lucide-react";
+import { AppSidebar } from "@/components/AppSidebar/AppSidebar";
 import  Button from "@/components/ui/Button/button";
-import { Badge } from "@/components/ui/badge";
 import { useEffect } from "react";
 import { clearSession } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,17 +11,16 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-
 const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user: usuario, loading: checkingSession } = useAuth();
+  const { user: usuario, loading: checkingSession, error: sessionError, retry } = useAuth();
   const isAdm = usuario?.role === 'adm';
   const online = usuario !== null;
 
   useEffect(() => {
-    if (!checkingSession && !usuario) navigate('/login', { replace: true });
-  }, [checkingSession, usuario, navigate]);
+    if (!checkingSession && !usuario && !sessionError) navigate('/login', { replace: true });
+  }, [checkingSession, usuario, sessionError, navigate]);
 
   const handleLogout = () => {
     clearSession();
@@ -47,7 +44,9 @@ const Layout = () => {
       case "/dashboard/apontamento": return "Apontamento de Vale Palete";
       case "/dashboard/criar-vale": return "Criar Vale Palete";
       case "/dashboard/vales-processados": return "Verificar vales processados";
-      default: return "Cargo Token";
+      case "/dashboard/aprova-adm": return "Administração";
+      case "/dashboard/cadastra-seClientOrTransporter": return "Cadastrar parceiro";
+      default: return "Bifrost";
     }
   };
 
@@ -64,8 +63,9 @@ const Layout = () => {
       default: return "Sistema de Gestão de Vale Paletes";
     }
   };
-  
+
  if (checkingSession) return <p role="status">Verificando sessão...</p>;
+ if (sessionError) return <div className="p-6 space-y-4"><p role="alert">{sessionError}</p><Button onClick={retry}>Tentar novamente</Button><Button variant="outline" onClick={handleLogout}>Sair</Button></div>;
  if (!usuario) return null;
  return (
     // CORREÇÃO: Envolvemos tudo com o SidebarProvider
@@ -96,31 +96,6 @@ const Layout = () => {
               ) : (
                 <></>
               )}
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    className="relative"
-                    title="Notificações"
-                    aria-label="Abrir notificações"
-                  >
-                    <Bell className="w-5 h-5 text-gray-600" />
-                    <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs">
-                      3
-                    </Badge>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-64 p-4">
-                  <h4 className="text-sm font-semibold mb-2">Notificações</h4>
-                  <ul className="space-y-2 text-sm text-gray-700">
-                    <li className="bg-gray-100 rounded-md p-2">Vale nº 1023 aprovado</li>
-                    <li className="bg-gray-100 rounded-md p-2">Novo vale pendente</li>
-                    <li className="bg-gray-100 rounded-md p-2">Relatório gerado</li>
-                  </ul>
-                </PopoverContent>
-              </Popover>
 
               <Popover>
                 <PopoverTrigger asChild>
@@ -162,16 +137,16 @@ const Layout = () => {
           <footer className="bg-white border-t border-gray-200 px-6 py-4">
             <div className="flex items-center justify-between text-sm text-gray-600">
               <div className="flex items-center gap-4">
-                <span>© 2024 Vale Palete Digital</span>
+                <span>© {new Date().getFullYear()} Bifrost</span>
                 <div className={`flex items-center gap-2 text-xs ${online ? "text-green-700" : "text-red-700"} font-medium`}>
                   <div className={`w-2 h-2 ${online ? "bg-green-500" : "bg-red-500"} rounded-full animate-pulse`}></div>
                   { online ? "Sistema Online" : "Sistema Offline"}
                 </div>
               </div>
               <div className="hidden sm:flex items-center gap-4">
-                <span>Versão 2.1.0</span>
+                <span>Gestão de vales palete</span>
                 <span>•</span>
-                <span>Última atualização: Hoje</span>
+
               </div>
             </div>
           </footer>

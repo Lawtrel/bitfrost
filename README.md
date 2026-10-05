@@ -93,6 +93,8 @@ Para criar o primeiro administrador em um banco de desenvolvimento preparado, ex
 
 A interface guarda o token em `sessionStorage` e confirma a sessão na API antes de abrir o painel. Os dados de apresentação em `localStorage` não concedem permissões. Ao receber HTTP 401, limpa a sessão e retorna ao login. Sair encerra a sessão no navegador; não revoga uma cópia do token antes dos 15 minutos. Não há renovação automática, verificação de email nem limitação de tentativas de login nesta entrega.
 
+Se a confirmação da sessão falhar por indisponibilidade da API ou da rede, o painel permanece bloqueado, preservando o token para uma nova tentativa. Vencimentos representam datas de calendário: um vale acumulado permanece válido durante todo o dia escolhido e passa a vencido no dia seguinte, conforme a data local do navegador. A exportação PDF usa um gerador compartilhado, com identificação completa, quantidade, valor unitário, total e vencimento.
+
 ## Validação
 
 Dentro de `backend/`, com `.env` configurado:
@@ -117,6 +119,8 @@ No frontend, `npm run typecheck` verifica os tipos da aplicação, dos testes e 
 Em 05/10/2026, o build e o fluxo de emissão → listagem → processamento foram validados localmente no navegador com PostgreSQL separado e dados descartáveis. Também foram conferidos login dos três cargos, bloqueios de rotas incompatíveis e atualização automática dos contadores após as operações. O download PDF não foi comprovado nessa revisão; aprovação de cadastro, promoção de usuário e processamento de vale vencido ainda precisam de revisão visual. Essa demonstração local não comprova uma implantação nem autoriza o uso de dados reais.
 
 ## Próximas entregas
+
+A revisão complementar de 05/10/2026 passou em 301 testes do frontend, distribuídos em 46 arquivos, e na verificação de tipos. Inclui aprovação, promoção, confirmação e atualização da lista ao remover parceiros, erro de consulta dos processados, processamento dos vencidos, recuperação de sessão e fronteiras de data. O PDF produzido pelo gerador da aplicação foi extraído e renderizado: uma página com identificação completa, 12 paletes, total R$ 222,00 e vencimento 30/11/2026. A execução final desses fluxos no navegador e a publicação da revisão complementar ainda estão pendentes.
 
 - Validar visualmente exportação PDF, aprovação de cadastro, promoção de usuário e processamento de vale vencido.
 - Implementar limitação de tentativas de login e verificar a propriedade do email antes de disponibilizar dados reais.

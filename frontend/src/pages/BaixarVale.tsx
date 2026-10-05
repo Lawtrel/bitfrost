@@ -1,3 +1,4 @@
+import { createValePdf } from '@/utils/valePdf';
 import ValeDetails from '@/components/ValeDetails';
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card/card"; 
@@ -15,8 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { getVales, updateArquivoVale, updateValeStatus, Vale } from "@/services/api";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { isValeOverdue } from '@/utils/valeDate';
 
 const BaixarVale = () => {
   const [vales, setVales] = useState<Vale[]>([]);
@@ -45,20 +45,7 @@ const BaixarVale = () => {
     console.log("Vales com status acumulado:", data);
 
     // 3. Verificar vencidos: se a data de vencimento já passou
-    const hoje = new Date();
-
-    // map para “atualizar status” localmente
-    const valesAtivos = data.map(v => {
-      const venc = new Date(v.dataVencimento);
-      const novoStatus = venc < hoje ? "vencido" : v.status;
-      return {
-        ...v,
-        status: novoStatus,
-      };
-    });
-
-    const valesVencidos = valesAtivos.filter(v => v.status === "vencido");
-    const valesPendentes = valesAtivos.filter(v => v.status !== "vencido");
+    const valesPendentes = data.filter(v => !isValeOverdue(v));
 
     // 5. Ajustar estado local com vales que não são vencidos
     setVales(valesPendentes);
@@ -168,29 +155,7 @@ const darBaixa = async (id: string) => {
   };
 
   const baixarPDF = (vale: Vale) => {
-    const doc = new jsPDF();
-    const dataVencimentoFormatada = vale.dataVencimento
-        ? new Date(vale.dataVencimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
-        : '-';
-
-    doc.setFontSize(18);
-    doc.text(`Detalhes do Vale - VP-${vale.id}`, 14, 22);
-
-    autoTable(doc, {
-      startY: 30,
-      head: [["Campo", "Valor"]],
-      body: [
-        ["Cliente", vale.cliente || "-"],
-        ["Transportadora", vale.transportadora || "-"],
-        ["Quantidade", `${vale.quantidade || 0} paletes`],
-        ["Valor Unitário", `R$ ${vale.valorUnitario?.toFixed(2) || '0.00'}`],
-        ["Data de Vencimento", dataVencimentoFormatada],
-        ["Observações", vale.observacoes || "-"]
-      ],
-      theme: 'striped'
-    });
-
-    doc.save(`vale-${vale.id}.pdf`);
+    createValePdf(vale, "Vale palete").save(`vale-${vale.id}.pdf`);
   };
 
   return (

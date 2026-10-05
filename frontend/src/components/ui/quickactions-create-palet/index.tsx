@@ -1,8 +1,7 @@
+import { createValePdf } from '@/utils/valePdf';
 import { Card } from "@/components/ui/card/card";
 import  Button  from "@/components/ui/Button/button";
 import { Download, Send } from "lucide-react";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 
 interface AcoesRapidasProps {
   clientePreenchido: boolean;
@@ -22,31 +21,7 @@ export function AcoesRapidas({ clientePreenchido, formData }: AcoesRapidasProps)
   const gerarPDF = () => {
     if (!clientePreenchido) return;
 
-    const doc = new jsPDF();
-    const dataVencimentoFormatada = formData.dataVencimento 
-        ? new Date(formData.dataVencimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) 
-        : '-';
-
-    doc.setFontSize(18);
-    doc.text("Preview do Vale Palete", 14, 22);
-    doc.setFontSize(11);
-    doc.setTextColor(100);
-
-    autoTable(doc, {
-      startY: 30,
-      head: [["Campo", "Valor"]],
-      body: [
-        ["Cliente", formData.cliente || "-"],
-        ["Transportadora", formData.transportadora || "-"],
-        ["Quantidade", `${formData.quantidade || 0} paletes`],
-        ["Valor Unitário", `R$ ${parseFloat(formData.valorUnitario || '0').toFixed(2)}`],
-        ["Data de Vencimento", dataVencimentoFormatada],
-        ["Observações", formData.observacoes || "-"]
-      ],
-      theme: 'striped'
-    });
-
-    doc.save(`vale-palete-${formData.cliente}.pdf`);
+    createValePdf({ ...formData, quantidade: Number(formData.quantidade), valorUnitario: Number(formData.valorUnitario) }, 'Prévia do vale palete').save('previa-vale-palete.pdf');
   };
 
   return (

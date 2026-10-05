@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { getVales, updateValeStatus, Vale } from "@/services/api";
+import { isValeOverdue, overdueDays } from '@/utils/valeDate';
 
 interface ValePayload {
   id: string;
@@ -40,21 +41,12 @@ const ValesVencidos = () => {
         setError(null);
       try {
           const response = await getVales(); // chamada da API
-          const vales: Vale[] = response.data.filter((vale) => vale.status === "vencido" || (vale.status === "acumulado" && new Date(vale.dataVencimento).getTime() < Date.now()));
-
-          const hoje = new Date();
-          hoje.setHours(0, 0, 0, 0);
+          const vales: Vale[] = response.data.filter(vale => isValeOverdue(vale));
 
           const valesVencidos: ValeVencido[] = vales.map((vale) => {
-            const dataVenc = new Date(vale.dataVencimento);
-            dataVenc.setHours(0, 0, 0, 0);
-
-            const diffTime = hoje.getTime() - dataVenc.getTime();
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
             return {
               ...vale,
-              diasVencido: diffDays > 0 ? diffDays : 0,
+              diasVencido: overdueDays(vale.dataVencimento),
               dataVencimento: vale.dataVencimento,
               dataCriacao: new Date(vale.dataCriacao).toISOString(),
             };

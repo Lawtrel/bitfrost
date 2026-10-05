@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card/card';
 import { getClientes, getTransportadoras, getVales, type Vale } from '@/services/api';
+import { isValeOverdue } from '@/utils/valeDate';
 
 export default function Dashboard() {
   const [vales, setVales] = useState<Vale[]>([]);
@@ -20,7 +21,7 @@ export default function Dashboard() {
   if (error) return <p role="alert" className="p-6 text-red-700">Não foi possível carregar o painel. Recarregue a página para tentar novamente.</p>;
   const processados = vales.filter(v => v.status === 'processado');
   const abertos = vales.filter(v => v.status === 'acumulado');
-  const vencidos = vales.filter(v => v.status === 'vencido' || (v.status === 'acumulado' && new Date(v.dataVencimento).getTime() < Date.now()));
+  const vencidos = vales.filter(v => isValeOverdue(v));
   const valor = processados.reduce((total,v) => total + v.quantidade * v.valorUnitario, 0);
   const taxa = vales.length ? (processados.length / vales.length * 100).toFixed(1) : '0.0';
   const metrics = [['Vales em aberto', abertos.length], ['Vales vencidos', vencidos.length], ['Vales processados', processados.length], ['Total de vales', vales.length]];

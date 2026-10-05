@@ -4,7 +4,6 @@ import  Button  from "@/components/ui/Button/button";
 import { useToast } from "@/hooks/use-toast";
 import { deleteCliente, deleteTransportadora, deleteUsuario, getClientes, getTransportadoras, getUsuariosByStatus, updateUsuariosByRole, updateUsuariosByStatus } from "@/services/api";
 import { useNavigate } from "react-router-dom";
-import { set } from "date-fns";
 import { Cliente, Transportadora } from "./CriarVale";
 
 
@@ -102,7 +101,6 @@ export default function AprovarAdms() {
     );
       setTransporters(reponse);
 
-      console.log(transportadoras.data);
     }catch(error){
       console.error("Erro ao buscar transportadoras:", error);
       toast({ title: "Erro ao carregar", description: "Não foi possível buscar a lista de transportadoras.", variant: "destructive" });
@@ -116,11 +114,12 @@ export default function AprovarAdms() {
         nome: t.nome
       })));
     }catch(error){
-      console.error("Erro ao buscar transportadoras:", error);
-      toast({ title: "Erro ao carregar", description: "Não foi possível buscar a lista de transportadoras.", variant: "destructive" });
+      console.error("Erro ao buscar clientes:", error);
+      toast({ title: "Erro ao carregar", description: "Não foi possível buscar a lista de clientes.", variant: "destructive" });
     }
   };
   const removerTransportadora = async (transporter: Transportadora) => {
+    if (!window.confirm(`Remover a transportadora ${transporter.nome}? Essa ação não pode ser desfeita.`)) return;
     try {
       await deleteTransportadora(transporter.id);
       toast({ title: "🗑️ Removido", description: `${transporter.nome} foi removido.` });
@@ -130,10 +129,11 @@ export default function AprovarAdms() {
     }
   };
   const removerCliente= async (client: Cliente) => {
+    if (!window.confirm(`Remover o cliente ${client.nome}? Essa ação não pode ser desfeita.`)) return;
     try {
       await deleteCliente(client.id);
       toast({ title: "🗑️ Removido", description: `${client.nome} foi removido.` });
-      fetchUsuarios(); // Re-busca os usuários para atualizar as listas
+      buscarClientes();
     } catch {
       toast({ title: "Erro", description: "Não foi possível remover", variant: "destructive" });
     }
@@ -149,8 +149,8 @@ export default function AprovarAdms() {
         Cadastrar novo Cliente/Transportadora
       </Button>
       <Card className="p-6 bg-white space-y-4"><h1 className="text-2xl font-semibold">Parceiros cadastrados</h1>
-        <h2 className="font-semibold">Clientes</h2>{clients.length ? clients.map(c => <p key={c.id}>{c.nome}</p>) : <p>Nenhum cliente cadastrado.</p>}
-        <h2 className="font-semibold">Transportadoras</h2>{transporters.length ? transporters.map(t => <p key={t.id}>{t.nome}</p>) : <p>Nenhuma transportadora cadastrada.</p>}
+        <h2 className="font-semibold">Clientes</h2>{clients.length ? clients.map(c => <div key={c.id} className="flex flex-wrap items-center justify-between gap-3"><p>{c.nome}</p><Button variant="outline" onClick={() => removerCliente(c)}>Remover cliente {c.nome}</Button></div>) : <p>Nenhum cliente cadastrado.</p>}
+        <h2 className="font-semibold">Transportadoras</h2>{transporters.length ? transporters.map(t => <div key={t.id} className="flex flex-wrap items-center justify-between gap-3"><p>{t.nome}</p><Button variant="outline" onClick={() => removerTransportadora(t)}>Remover transportadora {t.nome}</Button></div>) : <p>Nenhuma transportadora cadastrada.</p>}
       </Card>
       <Card className="p-6 bg-white space-y-4"><h2 className="text-xl font-semibold">Colaboradores aguardando aprovação</h2>
         {pendentes.length ? pendentes.map(u => <div key={u.uid} className="flex flex-wrap items-center justify-between gap-3 border-b pb-4"><div><p className="font-semibold">{u.nome}</p><p>{u.email} · {u.role}</p></div><Button onClick={() => aprovarUsuario(u)}>Aprovar {u.nome}</Button></div>) : <p>Nenhum cadastro pendente.</p>}
