@@ -38,11 +38,9 @@ const BaixarVale = () => {
     // 1. Buscar todos os vales via API
     const response = await getVales();
     const todosVales = response.data; // Vale[]
-    console.log("Todos os vales:", todosVales);
 
     // 2. Filtrar só os “cadastrados” (ou “acumulado”, conforme seu status)
     const data = todosVales.filter((vale) => vale.status === "acumulado");
-    console.log("Vales com status acumulado:", data);
 
     // 3. Verificar vencidos: se a data de vencimento já passou
     const valesPendentes = data.filter(v => !isValeOverdue(v));
@@ -169,7 +167,7 @@ const darBaixa = async (id: string) => {
             <p className="text-green-100">Gerencie e dê baixa nos vales palete recebidos</p>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold">{vales.filter(vale => new Date(vale.dataVencimento) >= new Date()).length}</div>
+            <div className="text-2xl font-bold" aria-label="Quantidade de vales ativos">{vales.length}</div>
             <div className="text-green-200">Vales Ativos</div>
           </div>
         </div>

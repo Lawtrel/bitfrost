@@ -30,6 +30,14 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 describe('fluxo principal com componentes reais', () => {
+  it('inclui o vencimento de hoje tanto na lista como no contador de ativos', async () => {
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T00:00:00.000Z`;
+    vi.mocked(getVales).mockResolvedValue({ data: [vale, { ...vale, id: 'today', dataVencimento: today }] } as never);
+    render(<BaixarVale />);
+    expect(await screen.findByRole('button', { name: 'Processar vale today' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Quantidade de vales ativos')).toHaveTextContent('2');
+  });
   it('aprova um cadastro pendente e atualiza as listas após a API', async () => {
     let approved = false;
     const person = { id: 'pending', nome: 'Pessoa Pendente', email: 'pendente@heineken.com', role: 'consultor' };
