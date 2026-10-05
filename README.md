@@ -112,9 +112,12 @@ docker compose --profile test stop db_test
 
 O workflow [Backend PostgreSQL](https://github.com/Lawtrel/bitfrost/actions/workflows/backend.yml) executa instalação pelo lockfile, build, testes da proteção, testes de autenticação e testes da API com PostgreSQL 16, além de verificar a disponibilidade do Prisma Client após remover dependências de desenvolvimento. O backend deve ser compilado antes de `npm prune --omit=dev --ignore-scripts`; `npm start` usa os artefatos já gerados.
 
-No frontend, `npm run typecheck` verifica os tipos da aplicação, dos testes e da configuração Vite; `npm run test:run` executa a suíte sem modo de observação. `npm run build` exige a checagem de tipos antes de gerar a aplicação. `npm run lint` verifica as regras de estilo. Esses comandos e a integração visual não fazem parte do workflow de backend.
+No frontend, `npm run typecheck` verifica os tipos da aplicação, dos testes e da configuração Vite; `npm run test:run` executa a suíte sem modo de observação. `npm run build` exige a checagem de tipos antes de gerar a aplicação. O workflow [Frontend](https://github.com/Lawtrel/bitfrost/actions/workflows/frontend.yml) executa a suíte e o build em Linux com Node.js 22. `npm run lint` verifica as regras de estilo e não integra esse workflow.
+
+Em 05/10/2026, o build e o fluxo de emissão → listagem → processamento foram validados localmente no navegador com PostgreSQL separado e dados descartáveis. Também foram conferidos login dos três cargos, bloqueios de rotas incompatíveis e atualização automática dos contadores após as operações. O download PDF não foi comprovado nessa revisão; aprovação de cadastro, promoção de usuário e processamento de vale vencido ainda precisam de revisão visual. Essa demonstração local não comprova uma implantação nem autoriza o uso de dados reais.
 
 ## Próximas entregas
 
-- Executar a integração autenticada em PostgreSQL e validar o fluxo completo pela interface antes de disponibilizar dados reais.
+- Validar visualmente exportação PDF, aprovação de cadastro, promoção de usuário e processamento de vale vencido.
+- Implementar limitação de tentativas de login e verificar a propriedade do email antes de disponibilizar dados reais.
 - Registrar uma demonstração reproduzível do fluxo cadastro → emissão de vale → alteração de status.
