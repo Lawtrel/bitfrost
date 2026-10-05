@@ -61,13 +61,17 @@ const CriarVale = () => {
   };
 
   const gerarVale = async () => {
-    if (!formData.cliente || !formData.transportadora || !formData.quantidade || !formData.dataVencimento) {
+    if (!formData.cliente || !formData.transportadora || !formData.quantidade || !formData.dataVencimento || !Number.isInteger(Number(formData.quantidade)) || Number(formData.quantidade) <= 0 || !Number.isFinite(Number(formData.valorUnitario)) || Number(formData.valorUnitario) < 0) {
       toast({ title: "⚠️ Campos obrigatórios", variant: "destructive" });
       return;
     }
     setLoading(true);
     const dataVencimentoCorreta = new Date(formData.dataVencimento);
-    dataVencimentoCorreta.setDate(dataVencimentoCorreta.getDate() + 1 )
+    if (!Number.isFinite(dataVencimentoCorreta.getTime())) {
+      toast({ title: "Vencimento inválido", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
     const valeData = {
       cliente: formData.cliente,
       transportadora: formData.transportadora,
@@ -82,6 +86,7 @@ const CriarVale = () => {
     try {
       await createVale(valeData);
       toast({ title: "✅ Vale criado com sucesso!" });
+      localStorage.removeItem("formCreatePalet_draft");
       setFormData({
         cliente: "", transportadora: "", quantidade: "0", dataVencimento: "",
         observacoes: "", valorUnitario: "0",
@@ -127,8 +132,6 @@ const CriarVale = () => {
             observacoes={formData.observacoes}
           />
           <AcoesRapidas clientePreenchido={!!formData.cliente} formData={formData} />
-          <Card className="shadow-lg border-0 bg-gradient-to-br from-yellow-50 to-orange-50 border-orange-200">
-          </Card>
         </div>
       </div>
     </div>

@@ -1,294 +1,37 @@
-import { Card } from "@/components/ui/card/card";
-import { Badge } from "@/components/ui/badge";
-import  Button  from "@/components/ui/Button/button";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingUp, AlertTriangle, Users, Truck, Package, FileText, Hourglass } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useVales } from "@/hooks/useVales";
-import { getClientes, getTransportadoras, getVales } from "@/services/api";
+import { useEffect, useState } from 'react';
+import { Card } from '@/components/ui/card/card';
+import { getClientes, getTransportadoras, getVales, type Vale } from '@/services/api';
 
-interface ValesProps {
-  id: string;
-  transportadora: string;
-  cliente: string;
-  quantidade: number;
-  valorUnitario: number;
-  dataVencimento: string;
-  dataCriacao: string;
-  status: string;
-}
-type AgrupamentoCliente = { nome: string; vales: number; paletes: number; valor: number; };
-
-const Dashboard = () => {
-  const navigate = useNavigate();
-  const [valesCadastrados, setValesCadastrados] = useState<ValesProps[]>([]);
-  const [valesVencidos, setValesVencidos] = useState<ValesProps[]>([]);
-  const [valesProcessados, setValesProcessados] = useState<ValesProps[]>([]);
-  const [cadastradosAtual, setCadastradosAtual] = useState(0);
-  const [vencidosAtual, setVencidosAtual] = useState(0);
-  const [processadosAtual, setProcessadosAtual] = useState(0);
-  const [vencidosAnterior, setVencidosAnterior] = useState(0);
-  const [valesData, setValesData] = useState<{ mes: string; pendentes: number; vencidos: number; processados: number; }[]>([]);
-  const [topClientes, setTopClientes] = useState<AgrupamentoCliente[]>([]);
-  const [error, setError] = useState<string | null>(null);  
-  const [online, setOnline] = useState(false);
-  const [usuarioLogado, setUsuarioLogado] = useState<{ email: string; role: string } | null>(null);
-  const [podeVerBotao, setPodeVerBotao] = useState(false);
+export default function Dashboard() {
+  const [vales, setVales] = useState<Vale[]>([]);
+  const [clientes, setClientes] = useState(0);
+  const [transportadoras, setTransportadoras] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [qtdTransportadoras, setQtdTransportadoras] = useState(0);
-  const [qtdClientes, setQtdClientes] = useState(0);
-  useEffect(()=> {
-    const usuarioLogado = localStorage.getItem("usuario");
-    if(usuarioLogado){
-      console.log("Usuário Logado")
-    }else {
-      navigate("/login");
-    }
-  }, [navigate])
-
+  const [error, setError] = useState(false);
   useEffect(() => {
-    const usuarioInfo = localStorage.getItem("usuario");
-    if(usuarioInfo){
-      try {
-        const usuarioParse = JSON.parse(usuarioInfo);
-        setUsuarioLogado({ email: usuarioParse.email, role: usuarioParse.role });
-        if(usuarioLogado){
-          if(usuarioLogado.role === "adm") {
-            setPodeVerBotao(true)
-          }
-        }
-      } catch {
-        setUsuarioLogado(null);
-      }
-      
-    }
-    const buscaTodosOsVales = async () => {
-      try {
-      const fetchVales = await getVales();
-      console.log("Vales buscados com sucesso");
-      setValesCadastrados(fetchVales.data.filter((vale) => vale.status === "acumulado"));
-      setValesVencidos(fetchVales.data.filter((vale) => vale.status === "vencido"));
-      setValesProcessados(fetchVales.data.filter((vale) => vale.status === "processado"));
-      setOnline(true);
-      setLoading(false);
-      } catch (error) {
-        console.error("Erro ao buscar dados do Dashboard:", error);
-        setOnline(false)
-      }
-      
-    };
-    buscaTodosOsVales();
+    let active = true;
+    Promise.all([getVales(), getClientes(), getTransportadoras()]).then(([v,c,t]) => {
+      if (!active) return;
+      setVales(v.data); setClientes(c.data.length); setTransportadoras(t.data.length);
+    }).catch(() => { if (active) setError(true); }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
-  
-  // O restante do seu componente continua igual...
-
-  const formatarMesAbreviado = (isoDate: string) => new Date(isoDate).toLocaleDateString("pt-BR", { month: "short" });
-  const formatarMes = (isoDate: string) => new Date(isoDate).toLocaleDateString("pt-BR", { month: "long" });
-  const getMesAnteriorFormatado = () => new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleDateString("pt-BR", { month: "long" });
-
-  useEffect(() => {
-    const agruparPorMes = (vales: ValesProps[]) => {
-      return vales.reduce<Record<string, number>>((acc, vale) => {
-        const mes = formatarMesAbreviado(vale.dataCriacao);
-        acc[mes] = (acc[mes] || 0) + 1;
-        return acc;
-      }, {});
-    };
-
-
-    const montarValesData = (valesCadastrados: ValesProps[], valesVencidos: ValesProps[], valesProcessados: ValesProps[]) => {
-      const mesesCadastrados = agruparPorMes(valesCadastrados);
-      const mesesVencidos = agruparPorMes(valesVencidos);
-      const mesesProcessados = agruparPorMes(valesProcessados);
-      const meses = new Set([...Object.keys(mesesCadastrados), ...Object.keys(mesesVencidos), ...Object.keys(mesesProcessados)]);
-      const ordemMeses = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-      
-      const resultado = Array.from(meses).map(mes => ({
-        mes,
-        pendentes: mesesCadastrados[mes] || 0,
-        vencidos: mesesVencidos[mes] || 0,
-        processados: mesesProcessados[mes] || 0,
-      }));
-      
-      resultado.sort((a, b) => ordemMeses.indexOf(a.mes.replace('.', '')) - ordemMeses.indexOf(b.mes.replace('.', '')));
-
-      return resultado;
-    };
-
-    const mesAtual = formatarMes(new Date().toISOString());
-    const mesAnterior = getMesAnteriorFormatado();
-
-    setCadastradosAtual(valesCadastrados.filter(v => formatarMes(v.dataCriacao) === mesAtual).length);
-    setVencidosAtual(valesVencidos.filter(v => formatarMes(v.dataCriacao) === mesAtual).length);
-    setProcessadosAtual(valesProcessados.filter(v => formatarMes(v.dataCriacao) === mesAtual).length);
-    setVencidosAnterior(valesVencidos.filter(v => formatarMes(v.dataCriacao) === mesAnterior).length);
-    
-    setValesData(montarValesData(valesCadastrados, valesVencidos, valesProcessados));
-
-  }, [valesCadastrados, valesVencidos, valesProcessados]);
-
-
-  const calcularDiferencaPercentual = (atual: number, anterior: number) => {
-    if (anterior === 0) return atual === 0 ? 0 : 100;
-    return ((atual - anterior) / anterior) * 100;
-  };
-
-  const diferencaVencidos = calcularDiferencaPercentual(vencidosAtual, vencidosAnterior);
-
-  const statusData = [
-    { name: "Pendentes", value: cadastradosAtual, color: "#fde047" },
-    { name: "Vencidos", value: vencidosAtual, color: "#ef4444" },
-    { name: "Processados", value: processadosAtual, color: "#3b82f6" },
-  ];
-      useEffect(() => {
-        const fetchVales = async () => {
-          try {
-            setError(null);
-            // Busca vales já processados
-            const fetchValesProcessados = await getVales();
-            const data = fetchValesProcessados.data.filter((vale) => vale.status === "processado");
-
-            // Agrupa por cliente
-            const clientesMap = new Map<string, AgrupamentoCliente>();
-            data.forEach((vale) => {
-              const clienteAtual =
-                clientesMap.get(vale.cliente) || {
-                  nome: vale.cliente,
-                  vales: 0,
-                  paletes: 0,
-                  valor: 0,
-                };
-              clienteAtual.vales++;
-              clienteAtual.paletes += vale.quantidade;
-              clienteAtual.valor += vale.quantidade * (vale.valorUnitario || 0);
-              clientesMap.set(vale.cliente, clienteAtual);
-            });
-
-            // Ordena pelo valor e pega o top 5
-            const top5 = Array.from(clientesMap.values())
-              .sort((a, b) => b.valor - a.valor)
-              .slice(0, 5);
-
-            setTopClientes(top5);
-          } catch (e) {
-            console.error(e);
-            setError("Falha ao carregar os vales processados.");
-          }
-        };
-        fetchVales();
-      }, []);
-      useEffect(() => {
-        const fetchClientesETransportadoras = async () => {
-          try {
-            const fetchClientes = await getClientes();
-            setQtdClientes(fetchClientes.data.length);
-            const fetchTrnasportadoras = await getTransportadoras();
-            setQtdTransportadoras(fetchTrnasportadoras.data.length);
-          } catch (e) {
-            console.error(e);
-            setError("Falha ao carregar os clientes.");
-          }
-        };
-          fetchClientesETransportadoras();
-        }, []);
-      if (loading) return <div className="p-6 text-center">Carregando dados...</div>;
-      if (error) return <div className="p-6 text-center text-red-500">{error}</div>;
-  const valorMovimentado = valesProcessados.reduce((acc, vale) => {
-    return acc + (vale.quantidade * (vale.valorUnitario || 0));
-  }, 0);
-  const totalVales = cadastradosAtual + vencidosAtual + processadosAtual;
-  const taxaProcessamento = totalVales > 0 
-    ? ((processadosAtual / totalVales) * 100).toFixed(1) 
-    : "0.0";
-    const papelAtual = valesProcessados.length; // 1 folha por vale
-    const papelEconomizado = (papelAtual * 3) - papelAtual;
-    const papelTotalSemSistema = valesProcessados.length * 3; // 3 folhas por vale sem o sistema 
-  const porcentagemPapel = papelEconomizado* 100 / papelTotalSemSistema; // porcentagem de papel usado
-
-
-  return (
-    <div className="p-6 space-y-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 text-white shadow-xl">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">BIFROST</h1>
-            <p className="text-blue-100 text-lg">Controle inteligente de movimentação de paletes</p>
-            <div className="flex items-center gap-4 mt-4">
-              <Badge className="bg-green-500/20 text-green-100 border-green-300">
-                {online ? "✓ Sistema Ativo": "X Sistema Inativo"}
-              </Badge>
-              <Badge className="bg-blue-500/20 text-blue-100 border-blue-300">
-                🚀 Inovação Digital
-              </Badge>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-3xl font-bold">{processadosAtual}</div>
-            <div className="text-blue-200">Vales Processados</div>
-            <div className="text-sm text-blue-300 mt-1">Este mês</div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
-        </Card>
-
-        <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-red-50 to-red-100 border-red-200">
-          
-        </Card>
-
-        <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          
-        </Card>
-
-        <Card className="hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          
-        </Card>
-      </div>
-        {/* Botões de navegação */}
-        {podeVerBotao ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        </div>
-        ): <></>}
-        
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="shadow-lg">
-        </Card>
-
-        <Card className="shadow-lg">
-        </Card>
-      </div>
-
-      <Card className="shadow-lg">
-        
-      </Card>
-
-      <div className="bg-white rounded-xl p-6 shadow-lg border">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-          <div>
-            <div className="text-2xl font-bold text-gray-800">{taxaProcessamento}%</div>
-            <div className="text-sm text-gray-600">Taxa de Processamento</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-gray-800">{(valorMovimentado/ 1000).toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-              maximumFractionDigits: 0, // remove os centavos se quiser
-              })}K
-            </div>
-            <div className="text-sm text-gray-600">Valor Movimentado</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-gray-800">{porcentagemPapel.toFixed(2)}%</div>
-            <div className="text-sm text-gray-600">Redução de Papel</div>
-          </div>
-        </div>
-      </div>
+  if (loading) return <p role="status" className="p-6">Carregando dados...</p>;
+  if (error) return <p role="alert" className="p-6 text-red-700">Não foi possível carregar o painel. Recarregue a página para tentar novamente.</p>;
+  const processados = vales.filter(v => v.status === 'processado');
+  const abertos = vales.filter(v => v.status === 'acumulado');
+  const vencidos = vales.filter(v => v.status === 'vencido' || (v.status === 'acumulado' && new Date(v.dataVencimento).getTime() < Date.now()));
+  const valor = processados.reduce((total,v) => total + v.quantidade * v.valorUnitario, 0);
+  const taxa = vales.length ? (processados.length / vales.length * 100).toFixed(1) : '0.0';
+  const metrics = [['Vales em aberto', abertos.length], ['Vales vencidos', vencidos.length], ['Vales processados', processados.length], ['Total de vales', vales.length]];
+  return <div className="p-6 space-y-6 min-h-screen bg-slate-50">
+    <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-6 text-white"><h1 className="text-3xl font-bold">Visão geral dos vales</h1><p className="mt-2">Indicadores dos registros cadastrados no sistema</p></div>
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{metrics.map(([label,value]) => <Card key={label} className="p-6 bg-white"><h2 className="text-sm text-gray-600">{label}</h2><p className="text-3xl font-semibold mt-2">{value}</p></Card>)}</div>
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <Card className="p-6 bg-white"><h2>Taxa de processamento</h2><p className="text-2xl font-bold mt-2">{taxa}%</p></Card>
+      <Card className="p-6 bg-white"><h2>Valor dos vales processados</h2><p className="text-2xl font-bold mt-2">{valor.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</p></Card>
+      <Card className="p-6 bg-white"><h2>Parceiros cadastrados</h2><p className="mt-2">{clientes} clientes · {transportadoras} transportadoras</p></Card>
     </div>
-  );
-};
-
-export default Dashboard;
+    <p className="text-sm text-gray-600">Os indicadores incluem todos os registros. Um vale em aberto pode também estar vencido.</p>
+  </div>;
+}

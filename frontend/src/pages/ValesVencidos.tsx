@@ -1,3 +1,4 @@
+import ValeDetails from '@/components/ValeDetails';
 // src/pages/ValesVencidos.tsx
 
 import { useEffect, useState } from "react";
@@ -39,7 +40,7 @@ const ValesVencidos = () => {
         setError(null);
       try {
           const response = await getVales(); // chamada da API
-          const vales: Vale[] = response.data.filter((vale) => vale.status === "vencido");
+          const vales: Vale[] = response.data.filter((vale) => vale.status === "vencido" || (vale.status === "acumulado" && new Date(vale.dataVencimento).getTime() < Date.now()));
 
           const hoje = new Date();
           hoje.setHours(0, 0, 0, 0);
@@ -54,7 +55,7 @@ const ValesVencidos = () => {
             return {
               ...vale,
               diasVencido: diffDays > 0 ? diffDays : 0,
-              dataVencimento: dataVenc.toISOString(),
+              dataVencimento: vale.dataVencimento,
               dataCriacao: new Date(vale.dataCriacao).toISOString(),
             };
           });
@@ -132,14 +133,11 @@ const darBaixaVale = async (id: string) => {
         </AlertDescription>
       </Alert>
 
-      <Card>
-      </Card>
+      {valesVencidos.length === 0 && <p>Nenhum vale vencido.</p>}
 
       <div className="grid gap-4">
         {valesVencidos.map((vale) => (
-          <Card key={vale.id} className="border-red-200 bg-red-50/30">
-            
-          </Card>
+          <Card key={vale.id} className="p-6 border-red-200 bg-white"><ValeDetails vale={vale} /><p className="mt-4 text-red-700">{vale.diasVencido} dias de atraso</p><Button className="mt-4" onClick={() => darBaixaVale(vale.id)}>Processar vale {vale.id}</Button></Card>
         ))}
       </div>
     </div>

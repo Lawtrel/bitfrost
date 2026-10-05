@@ -1,3 +1,4 @@
+import ValeDetails from '@/components/ValeDetails';
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card/card"; 
 import  Button  from "@/components/ui/Button/button";
@@ -58,16 +59,6 @@ const BaixarVale = () => {
 
     const valesVencidos = valesAtivos.filter(v => v.status === "vencido");
     const valesPendentes = valesAtivos.filter(v => v.status !== "vencido");
-
-    // 4. Atualizar no backend para os vales vencidos
-    for (const vale of valesVencidos) {
-      try {
-        await updateValeStatus(vale.id, "vencido");
-        console.log(`Vale ${vale.id} atualizado para vencido via API`);
-      } catch (err) {
-        console.error(`Erro ao atualizar status do vale ${vale.id}:`, err);
-      }
-    }
 
     // 5. Ajustar estado local com vales que não são vencidos
     setVales(valesPendentes);
@@ -220,7 +211,9 @@ const darBaixa = async (id: string) => {
       </div>
 
       {/* Filters Card */}
-      <Card className="shadow-lg border-0">
+      <Card className="shadow-lg border-0 bg-white p-6 grid gap-4 sm:grid-cols-2">
+        <div><label htmlFor="processar-cliente">Buscar cliente</label><Input id="processar-cliente" value={filtro} onChange={e => setFiltro(e.target.value)} /></div>
+        <div><label htmlFor="processar-transporte">Buscar transportadora</label><Input id="processar-transporte" value={transportadoraFiltro} onChange={e => setTransportadoraFiltro(e.target.value)} /></div>
       </Card>
 
       {/* Results Summary */}
@@ -230,21 +223,17 @@ const darBaixa = async (id: string) => {
           </p>
         </div>
 
+      {valesFiltrados.length === 0 && <p>Nenhum vale em aberto corresponde aos filtros.</p>}
       {/* Vales List */}
       <div className="space-y-4">
         {valesFiltrados.map(vale => (
-          <Card key={vale.id} className="hover:shadow-xl transition-all duration-300 border-l-4 border-l-green-500">
-            
+          <Card key={vale.id} className="p-6 bg-white border-l-4 border-l-green-500">
+            <ValeDetails vale={vale} />
+            <div className="flex flex-wrap gap-3 mt-5"><Button onClick={() => darBaixa(vale.id)}>Processar vale {vale.id}</Button><Button variant="outline" onClick={() => baixarPDF(vale)}>Baixar PDF</Button></div>
           </Card>
         ))}
       </div>
     </div>
-    {/* Summary Footer */}
-      {vales.length > 0 && (
-        <Card className="bg-gradient-to-r from-gray-50 to-gray-100 border-0 shadow-lg">
-          
-        </Card>
-      )}
     </>
   );
 };

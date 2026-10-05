@@ -1,3 +1,4 @@
+import ValeDetails from '@/components/ValeDetails';
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card/card";
 import  Button  from "@/components/ui/Button/button";
@@ -98,27 +99,19 @@ const ValesProcessados = () => {
         </div>
       </div>
 
-      <Card className="shadow-lg border-0">
+      <Card className="shadow-lg border-0 bg-white p-6 grid gap-4 sm:grid-cols-2">
+        <div><Label htmlFor="processados-cliente">Buscar cliente</Label><Input id="processados-cliente" value={filtro} onChange={e => setFiltro(e.target.value)} /></div>
+        <div><Label htmlFor="processados-transporte">Buscar transportadora</Label><Input id="processados-transporte" value={transportadoraFiltro} onChange={e => setTransportadoraFiltro(e.target.value)} /></div>
       </Card>
 
       <div className="space-y-4">
         {valesFiltrados.length > 0 ? valesFiltrados.map((vale) => (
-          <Card key={vale.id} className="hover:shadow-xl transition-all duration-300 border-l-4 border-l-blue-500">
-      
-          </Card>
+          <Card key={vale.id} className="p-6 bg-white border-l-4 border-l-blue-500"><ValeDetails vale={vale} /><Button className="mt-5" variant="outline" onClick={() => baixarPDF(vale)}>Baixar PDF</Button></Card>
         )) : (
-          <Card>
-            
-          </Card>
+          <p>Nenhum vale processado corresponde aos filtros.</p>
         )}
       </div>
     </div>
-     {/* Summary Footer */}
-      {vales.length > 0 && (
-        <Card className="bg-gradient-to-r from-gray-50 to-gray-100 border-0 shadow-lg">
-          
-        </Card>
-      )}
       </>
   );
 };

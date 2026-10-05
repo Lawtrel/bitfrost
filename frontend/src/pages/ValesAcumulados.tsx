@@ -11,7 +11,7 @@ type AgrupamentoCliente = { nome: string; vales: number; paletes: number; valor:
 type AgrupamentoTransportadora = { nome: string; vales: number; paletes: number; };
 
 const ValesAcumulados = () => {
-  const { loading } = useVales();
+  const [loading, setLoading] = useState(true);
   const [vales, setVales] = useState<Vale[]>([]);
   const [clientesAgregados, setClientesAgregados] = useState<AgrupamentoCliente[]>([]);
   const [transportadorasAgregadas, setTransportadorasAgregadas] = useState<AgrupamentoTransportadora[]>([]);
@@ -50,7 +50,7 @@ const ValesAcumulados = () => {
       } catch (e) {
         console.error(e);
         setError("Falha ao carregar os vales.");
-      }
+      } finally { setLoading(false); }
     };
 
     fetchVales();
@@ -74,9 +74,9 @@ const ValesAcumulados = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100"></Card>
-        <Card className="bg-gradient-to-br from-green-50 to-green-100"></Card>
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100"></Card>
+        <Card className="p-6 bg-white"><h2>Vales em aberto</h2><p className="text-2xl font-bold">{totalVales}</p></Card>
+        <Card className="p-6 bg-white"><h2>Total de paletes</h2><p className="text-2xl font-bold">{totalPaletes}</p></Card>
+        <Card className="p-6 bg-white"><h2>Valor dos vales em aberto</h2><p className="text-2xl font-bold">{valorEstimado.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</p></Card>
       </div>
 
       <Tabs defaultValue="clientes" className="space-y-6">
@@ -85,26 +85,13 @@ const ValesAcumulados = () => {
           <TabsTrigger value="transportadoras">Por Transportadora</TabsTrigger>
         </TabsList>
 
-        {/* --- Por Cliente --- */}
-        <TabsContent value="clientes" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-            </Card>
-
-            <Card>
-            </Card>
-          </div>
+        <TabsContent value="clientes" className="space-y-4">
+          {!clientesAgregados.length && <p>Nenhum vale em aberto.</p>}
+          {clientesAgregados.map(c => <Card key={c.nome} className="p-6 bg-white"><h2 className="font-semibold">{c.nome}</h2><p>{c.vales} vales · {c.paletes} paletes</p><p>{c.valor.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</p></Card>)}
         </TabsContent>
-
-        {/* --- Por Transportadora --- */}
-        <TabsContent value="transportadoras" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-            </Card>
-
-            <Card>
-            </Card>
-          </div>
+        <TabsContent value="transportadoras" className="space-y-4">
+          {!transportadorasAgregadas.length && <p>Nenhum vale em aberto.</p>}
+          {transportadorasAgregadas.map(t => <Card key={t.nome} className="p-6 bg-white"><h2 className="font-semibold">{t.nome}</h2><p>{t.vales} vales · {t.paletes} paletes</p></Card>)}
         </TabsContent>
       </Tabs>
     </div>

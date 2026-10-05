@@ -50,8 +50,6 @@ export function AcoesRapidas({ clientePreenchido, formData }: AcoesRapidasProps)
   };
 
   return (
-    <Card className="shadow-lg border-0">
-      
-    </Card>
+    <Card className="shadow-lg border-0 bg-white p-6"><Button type="button" variant="outline" disabled={!clientePreenchido} onClick={gerarPDF}>Baixar prévia em PDF</Button></Card>
   );
 }

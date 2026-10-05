@@ -15,7 +15,10 @@ export function ResumoFinanceiro({ quantidade, valorUnitario }: ResumoFinanceiro
     };
 
     return (
-        <Card className="shadow-lg border-0">
+        <Card className="shadow-lg border-0 bg-white p-6">
+          <h2 className="font-semibold mb-4">Resumo financeiro</h2>
+          <p>{quantidade || '0'} paletes × R$ {valorUnitario || '0'}</p>
+          <p className="text-2xl font-bold mt-3">R$ {total()}</p>
         </Card>
     );
 }
