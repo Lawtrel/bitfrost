@@ -6,6 +6,12 @@ Aplicação para gestão de vales, clientes e transportadoras, com interface Rea
 
 Projeto desenvolvido em colaboração por [Lawtrel](https://github.com/Lawtrel) e [Gui-ASA](https://github.com/Gui-ASA). O histórico de commits registra as contribuições.
 
+## Demonstração da aplicação
+
+![Tela de vales processados do BitFrost com filtros, detalhes e download PDF](docs/images/vales-processados.jpg)
+
+Captura real da validação local com dados fictícios. A tela permite consultar vales processados, conferir quantidade e valor total e baixar o PDF. Nomes e valores da imagem pertencem ao ambiente de demonstração.
+
 ## Visão técnica
 
 | Parte | Responsabilidade |
@@ -120,7 +126,7 @@ Em 05/10/2026, o build e o fluxo de emissão → listagem → processamento fora
 
 ## Próximas entregas
 
-A revisão complementar de 05/10/2026 passou em 301 testes do frontend, distribuídos em 46 arquivos, e na verificação de tipos. Inclui aprovação, promoção, confirmação e atualização da lista ao remover parceiros, erro de consulta dos processados, processamento dos vencidos, recuperação de sessão e fronteiras de data. O PDF produzido pelo gerador da aplicação foi extraído e renderizado: uma página com identificação completa, 12 paletes, total R$ 222,00 e vencimento 30/11/2026. A conferência visual identificou um contador que ainda excluía vales de hoje; após a correção, os 16 testes do fluxo principal passaram, incluindo uma nova regressão, e os tipos passaram novamente. A publicação da revisão complementar ainda está pendente.
+A revisão complementar de 05/10/2026 passou em 301 testes do frontend, distribuídos em 46 arquivos, e na verificação de tipos. Inclui aprovação, promoção, confirmação e atualização da lista ao remover parceiros, erro de consulta dos processados, processamento dos vencidos, recuperação de sessão e fronteiras de data. O PDF produzido pelo gerador da aplicação foi extraído e renderizado: uma página com identificação completa, 12 paletes, total R$ 222,00 e vencimento 30/11/2026. A conferência visual identificou um contador que ainda excluía vales de hoje; após a correção, os 16 testes do fluxo principal passaram, incluindo uma nova regressão, e os tipos passaram novamente. A versão final `84d49f5` passou nos sete checks do PR #15, integrado em 05/10/2026: 302 testes do frontend, 57 de autenticação com banco simulado, 11 de integração PostgreSQL e builds aprovados.
 
 - Implementar limitação de tentativas de login e verificar a propriedade do email antes de disponibilizar dados reais.
 - Registrar uma demonstração reproduzível do fluxo cadastro → emissão de vale → alteração de status.
