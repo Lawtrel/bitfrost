@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card/card";
-import  Button  from "@/components/ui/button/button";
+import  Button  from "@/components/ui/Button/button";
 import { Download, Send } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -50,8 +50,6 @@ export function AcoesRapidas({ clientePreenchido, formData }: AcoesRapidasProps)
   };
 
   return (
-    <Card className="shadow-lg border-0">
-      
-    </Card>
+    <Card className="shadow-lg border-0 bg-white p-6"><Button type="button" variant="outline" disabled={!clientePreenchido} onClick={gerarPDF}>Baixar prévia em PDF</Button></Card>
   );
 }

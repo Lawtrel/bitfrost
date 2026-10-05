@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card} from "@/components/ui/card/card";
-import  Button  from "@/components/ui/button/button";
+import  Button  from "@/components/ui/Button/button";
 import { useToast } from "@/hooks/use-toast";
 import { deleteCliente, deleteTransportadora, deleteUsuario, getClientes, getTransportadoras, getUsuariosByStatus, updateUsuariosByRole, updateUsuariosByStatus } from "@/services/api";
 import { useNavigate } from "react-router-dom";
@@ -39,7 +39,7 @@ export default function AprovarAdms() {
 
       // Busca usuários com status 'ativo'
       const ativos =  await getUsuariosByStatus("ativo");;
-      const dataAtivos = pendentes.data.map((user: any) => ({
+      const dataAtivos = ativos.data.map((user: any) => ({
         uid: user.id, 
         nome: user.nome,
         email: user.email,
@@ -124,7 +124,7 @@ export default function AprovarAdms() {
     try {
       await deleteTransportadora(transporter.id);
       toast({ title: "🗑️ Removido", description: `${transporter.nome} foi removido.` });
-      fetchUsuarios(); // Re-busca os usuários para atualizar as listas
+      buscarTransportadoras();
     } catch {
       toast({ title: "Erro", description: "Não foi possível remover", variant: "destructive" });
     }
@@ -148,18 +148,16 @@ export default function AprovarAdms() {
       >
         Cadastrar novo Cliente/Transportadora
       </Button>
-      {/* Lista de Clientes e Transportadoras */}
-      <Card>
-        
+      <Card className="p-6 bg-white space-y-4"><h1 className="text-2xl font-semibold">Parceiros cadastrados</h1>
+        <h2 className="font-semibold">Clientes</h2>{clients.length ? clients.map(c => <p key={c.id}>{c.nome}</p>) : <p>Nenhum cliente cadastrado.</p>}
+        <h2 className="font-semibold">Transportadoras</h2>{transporters.length ? transporters.map(t => <p key={t.id}>{t.nome}</p>) : <p>Nenhuma transportadora cadastrada.</p>}
       </Card>
-      {/* Lista de usuários pendentes */}
-      <Card>
-        
+      <Card className="p-6 bg-white space-y-4"><h2 className="text-xl font-semibold">Colaboradores aguardando aprovação</h2>
+        {pendentes.length ? pendentes.map(u => <div key={u.uid} className="flex flex-wrap items-center justify-between gap-3 border-b pb-4"><div><p className="font-semibold">{u.nome}</p><p>{u.email} · {u.role}</p></div><Button onClick={() => aprovarUsuario(u)}>Aprovar {u.nome}</Button></div>) : <p>Nenhum cadastro pendente.</p>}
       </Card>
 
-      {/* Lista de usuários ativos */}
-      <Card>
-        
+      <Card className="p-6 bg-white space-y-4"><h2 className="text-xl font-semibold">Colaboradores ativos</h2>
+        {ativos.length ? ativos.map(u => <div key={u.uid} className="flex flex-wrap items-center justify-between gap-3 border-b pb-4"><div><p className="font-semibold">{u.nome}</p><p>{u.email} · {u.role}</p></div>{u.role === 'consultor' && <Button variant="outline" onClick={() => promoverConsultor(u)}>Promover {u.nome} a supervisor</Button>}</div>) : <p>Nenhum colaborador ativo.</p>}
       </Card>
     </div>
   );

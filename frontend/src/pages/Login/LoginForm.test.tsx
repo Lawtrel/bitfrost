@@ -44,4 +44,13 @@ describe('LoginForm', () => {
 
     expect(mockSubmit).toHaveBeenCalledTimes(1);
   });
+
+  it('permite enviar pelo formulário e identifica os campos por seus rótulos', () => {
+    mockSubmit.mockClear();
+    render(<LoginForm />);
+    expect(screen.getByLabelText('Email Corporativo')).toHaveAttribute('autoComplete', 'username');
+    expect(screen.getByLabelText('Senha')).toHaveAttribute('autoComplete', 'current-password');
+    fireEvent.submit(screen.getByRole('form', { name: 'Login' }));
+    expect(mockSubmit).toHaveBeenCalledTimes(1);
+  });
 });

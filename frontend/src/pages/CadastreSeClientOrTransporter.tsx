@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import  Button  from "@/components/ui/button/button";
+import  Button  from "@/components/ui/Button/button";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import {
@@ -82,7 +82,13 @@ export default function CadastreSeUser() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-slate-50 p-4">
-      <Card className="w-full max-w-md shadow-lg border-0">
+      <Card className="w-full max-w-md shadow-lg border-0 bg-white p-6">
+        <h1 className="text-2xl font-semibold mb-6">Cadastrar parceiro</h1>
+        <form onSubmit={e => { e.preventDefault(); void handleSubmit(); }} className="space-y-5">
+          <div><Label htmlFor="parceiro-tipo">Tipo de parceiro</Label><select id="parceiro-tipo" className="w-full border rounded-md p-3 mt-2" value={form.tipo} onChange={e => handleChange('tipo', e.target.value)}><option value="cliente">Cliente</option><option value="transportadora">Transportadora</option></select></div>
+          <div><Label htmlFor="parceiro-nome">Nome</Label><Input id="parceiro-nome" required maxLength={120} value={form.nome} onChange={e => handleChange('nome', e.target.value)} /></div>
+          <Button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Cadastrar parceiro'}</Button>
+        </form>
       </Card>
     </div>
   );

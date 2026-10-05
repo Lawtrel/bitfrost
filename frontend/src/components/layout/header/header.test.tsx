@@ -58,12 +58,11 @@ describe("Header", () => {
         )
 
         const link1 = screen.getByRole('link', { name: /home/i });
-        const link2 = screen.getByRole('link', { name: /sobre nós/i });
-        const link3 = screen.getByRole('link', { name: /contato/i });
+
         
         expect(link1).toBeInTheDocument();
-        expect(link2).toBeInTheDocument();
-        expect(link3).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: /sobre nós/i })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: /contato/i })).not.toBeInTheDocument();
     });
 
     it("Link de login existe", () => {

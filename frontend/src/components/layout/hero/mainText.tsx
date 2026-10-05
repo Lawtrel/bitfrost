@@ -1,5 +1,5 @@
 import AnimatedText from "@/components/shared/animatedText/animatedText";
-import Button from "@/components/ui/button/button";
+import Button from "@/components/ui/Button/button";
 import { MoveRight } from "lucide-react";
 
 export default function MainText() {

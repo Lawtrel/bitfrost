@@ -78,10 +78,11 @@ describe('SingUpForm', () => {
     render(<SingUpForm />);
 
     fireEvent.change(screen.getByRole('combobox'), {
-      target: { value: 'adm' },
+      target: { value: 'consultor' },
     });
 
-    expect(mockHandleChange).toHaveBeenCalledWith('role', 'adm');
+    expect(mockHandleChange).toHaveBeenCalledWith('role', 'consultor');
+    expect(screen.queryByRole('option', { name: 'Administrador' })).not.toBeInTheDocument();
   });
 
   it('deve chamar submit ao clicar em cadastrar', () => {

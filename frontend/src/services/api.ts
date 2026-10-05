@@ -6,6 +6,30 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL, 
 });
 
+export const SESSION_CLEARED = 'bitfrost:session-cleared';
+export const VALES_CHANGED = 'bitfrost:vales-changed';
+export const clearSession = () => {
+  sessionStorage.removeItem('accessToken');
+  localStorage.removeItem('usuario');
+  localStorage.removeItem('admId');
+  window.dispatchEvent(new Event(SESSION_CLEARED));
+};
+
+api.interceptors.request.use(config => {
+  const token = sessionStorage.getItem('accessToken');
+  if (token) config.headers.set('Authorization', `Bearer ${token}`);
+  return config;
+});
+api.interceptors.response.use(response => {
+  if (response.config.url?.startsWith('/vales') && response.config.method !== 'get') {
+    window.dispatchEvent(new Event(VALES_CHANGED));
+  }
+  return response;
+}, error => {
+  if (error.response?.status === 401) clearSession();
+  return Promise.reject(error);
+});
+
 // --- TIPOS (para ajudar o TypeScript) ---
 // É uma boa prática definir os tipos dos dados que esperamos da API
 export interface Vale {
@@ -34,7 +58,6 @@ export interface Transportadora {
 export interface Usuario {
     id: string;
     nome: string;
-    senha: string;
     email: string;
     role: string;
     status: string;
@@ -44,9 +67,10 @@ export interface Usuario {
 // --- FUNÇÕES DE API ---
 
 //Usuários
-export const createUsuario = (usuario: Omit<Usuario, "id">) => api.post('/admins', usuario);
+export const createUsuario = (usuario: Omit<Usuario, "id"> & { senha: string }) => api.post('/admins', usuario);
 export const getUsuariosByRole = (role: string) => api.get<Usuario[]>(`/admins?role=${role}`);
-export const loginUsuario = (email: string, senha: string) => api.post<Usuario>('/admins/login', { email, senha });
+export const loginUsuario = (email: string, senha: string) => api.post<{user: Usuario; token: string; expiresIn: number}>('/admins/login', { email, senha });
+export const getSession = () => api.get<Usuario>('/admins/me');
 export const getUsuariosByEmail = (email: string) => api.get<Usuario[]>(`/admins?email=${email}`);
 export const getUsuariosByStatus = (status: string) => api.get<Usuario[]>(`/admins?status=${status}`);
 export const updateUsuariosByStatus = (id: string, status: string) => api.put<Usuario[]>(`/admins/${id}/status`, { status });

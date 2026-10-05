@@ -2,69 +2,31 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 // CORREÇÃO: Adicionamos SidebarProvider e garantimos que AppSidebar é uma importação nomeada
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar-button/sidebar";
 import { AppSidebar } from "@/components/AppSidebar/AppSidebar"; 
-import { Bell, Search } from "lucide-react";
-import  Button from "@/components/ui/button/button";
+import { Bell } from "lucide-react";
+import  Button from "@/components/ui/Button/button";
 import { Badge } from "@/components/ui/badge";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { clearSession } from '@/services/api';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
 
-interface UsuarioLogado {
-  nome: string;
-  role: string;
-  email: string;
-}
-
 const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [usuario, setUsuario] = useState<UsuarioLogado | null>(null);
-  const [online, setOnline] = useState(false);
-  const [isAdm, setIsAdm] = useState(false);
-  const [role, setRole] = useState<string | null>(null);
+  const { user: usuario, loading: checkingSession } = useAuth();
+  const isAdm = usuario?.role === 'adm';
+  const online = usuario !== null;
 
   useEffect(() => {
-    const usuarioString = localStorage.getItem("usuario");
-    if (usuarioString) {
-      try {
-        setUsuario(JSON.parse(usuarioString));
-        setOnline(true);
-      } catch (error) {
-        console.error("Erro ao parsear dados do usuário:", error);
-        handleLogout();
-        setOnline(false);
-      }
-    } else {
-        navigate("/login");
-    }
-  }, [navigate]);
-
-    useEffect(() => {
-    const usuarioString = localStorage.getItem("usuario");
-
-    if (usuarioString) {
-      try {
-        const usuarioObj = JSON.parse(usuarioString);
-
-        const usuarioRole = usuarioObj.role || usuarioObj.papel || null;
-        setRole(usuarioRole);
-
-        // Verifica se é admin
-        if(usuarioRole === "adm"){
-          setIsAdm(true);
-        }
-      } catch (error) {
-        console.error("Erro ao converter dados do usuário:", error);
-      }
-    }
-  }, []);
+    if (!checkingSession && !usuario) navigate('/login', { replace: true });
+  }, [checkingSession, usuario, navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("usuario");
-    localStorage.removeItem("admId");
+    clearSession();
     navigate("/login");
   };
 
@@ -103,11 +65,13 @@ const Layout = () => {
     }
   };
   
+ if (checkingSession) return <p role="status">Verificando sessão...</p>;
+ if (!usuario) return null;
  return (
     // CORREÇÃO: Envolvemos tudo com o SidebarProvider
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-gray-50 to-blue-50">
-        <AppSidebar />
+        <AppSidebar role={usuario.role} />
         <div className="flex-1 flex flex-col">
           <header className="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm">
             <div className="flex items-center gap-4">
@@ -193,7 +157,7 @@ const Layout = () => {
           </header>
 
           <main className="flex-1 overflow-auto">
-            <Outlet />
+            <Outlet context={usuario} />
           </main>
           <footer className="bg-white border-t border-gray-200 px-6 py-4">
             <div className="flex items-center justify-between text-sm text-gray-600">

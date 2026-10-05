@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Button from "@/components/ui/button/button";
+import Button from "@/components/ui/Button/button";
 import { useLoginForm } from "@/hooks/loginForm/useLoginForm";
 
 export default function LoginForm() {
@@ -8,10 +8,12 @@ export default function LoginForm() {
 
   return (
     <>
-      <div className="flex flex-col gap-4 w-full p-6">
+      <form aria-label="Login" onSubmit={event => { event.preventDefault(); void submit(); }} className="flex flex-col gap-4 w-full p-6">
         <div className="space-y-2">
-          <Label>Email Corporativo</Label>
+          <Label htmlFor="login-email">Email Corporativo</Label>
           <Input
+            id="login-email"
+            autoComplete="username"
             type="email"
             placeholder="exemplo@heineken.com"
             value={form.email}
@@ -20,8 +22,10 @@ export default function LoginForm() {
         </div>
 
         <div className="space-y-2">
-          <Label>Senha</Label>
+          <Label htmlFor="login-senha">Senha</Label>
           <Input
+            id="login-senha"
+            autoComplete="current-password"
             type="password"
             placeholder="Digite sua senha"
             value={form.senha}
@@ -30,7 +34,7 @@ export default function LoginForm() {
         </div>
 
         <Button
-          onClick={submit}
+          type="submit"
           disabled={loading}
           variant="secondary"
           className="w-full h-10 font-semibold mt-4"
@@ -44,7 +48,7 @@ export default function LoginForm() {
             Cadastre-se
           </a>
         </p>
-      </div>
+      </form>
     </>
   );
 }

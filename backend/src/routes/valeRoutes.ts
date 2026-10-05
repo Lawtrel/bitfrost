@@ -1,17 +1,17 @@
 import { Router } from 'express';
+import { requireSupervisor } from '../auth/middleware';
 import {
   createVale,
   getAllVales,
   getValeById,
   updateVale,
   deleteVale,
-  uploadArquivoVale,
 } from '../controllers/valeController';
 
 const router = Router();
 
 // Rota para criar um novo vale (POST /api/vales)
-router.post('/', createVale);
+router.post('/', requireSupervisor, createVale);
 
 // Rota para listar todos os vales (GET /api/vales)
 router.get('/', getAllVales);
@@ -20,13 +20,12 @@ router.get('/', getAllVales);
 router.get('/:id', getValeById);
 
 // Rota para atualizar um vale (PUT /api/vales/algum-id)
-router.put('/:id', updateVale);
+router.put('/:id', requireSupervisor, updateVale);
 
 // Rota para deletar um vale (DELETE /api/vales/algum-id)
-router.delete('/:id', deleteVale);
+router.delete('/:id', requireSupervisor, deleteVale);
 
-// Rota específica para upload de arquivo
-router.put('/:id', uploadArquivoVale);
+// updateVale também atualiza os campos do anexo.
 
 
 export default router;

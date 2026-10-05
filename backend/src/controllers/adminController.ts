@@ -1,13 +1,19 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-
-const prisma = new PrismaClient();
+import { prisma } from '../infra/prisma';
+import { issueToken, tokenLifetimeSeconds } from '../auth/token';
 
 // --- Criar um novo Admin (com senha criptografada) ---
 export const createAdmin = async (req: Request, res: Response) => {
   try {
-    const { nome, email, role, status, senha } = req.body;
+    const { nome, email, role, senha } = req.body || {};
+    if (typeof nome !== 'string' || !nome.trim() || nome.length > 120
+        || typeof email !== 'string' || email.length > 254
+        || !/^[^\s@]+@(heineken\.com|heiway\.net)$/i.test(email.trim())
+        || !['consultor', 'supervisor'].includes(role)
+        || typeof senha !== 'string' || senha.length < 8 || Buffer.byteLength(senha) > 72) {
+      return res.status(400).json({ error: 'Informe nome, email corporativo, cargo permitido e senha de 8 a 72 bytes.' });
+    }
 
     // Criptografa a senha
     const salt = await bcrypt.genSalt(10);
@@ -15,10 +21,10 @@ export const createAdmin = async (req: Request, res: Response) => {
 
     const newAdmin = await prisma.admin.create({
       data: {
-        nome,
-        email,
+        nome: nome.trim(),
+        email: email.trim().toLowerCase(),
         role,
-        status,
+        status: 'pendente',
         senha: hashedPassword, // Salva a senha criptografada
       },
     });
@@ -28,6 +34,9 @@ export const createAdmin = async (req: Request, res: Response) => {
     res.status(201).json(adminSemSenha);
 
   } catch (error) {
+    if ((error as { code?: string }).code === 'P2002') {
+      return res.status(409).json({ error: 'Já existe um usuário cadastrado com este email.' });
+    }
     res.status(500).json({ error: 'Nao foi possivel criar o admin.' });
   }
 };
@@ -35,11 +44,12 @@ export const createAdmin = async (req: Request, res: Response) => {
 // --- Listar todos os Admins (sem a senha) ---
 export const getAllAdmins = async (req: Request, res: Response) => {
   try {
-    const { role, email } = req.query;
+    const { role, email, status } = req.query;
 
     const where: any = {};
     if (role) where.role = String(role);
     if (email) where.email = String(email);
+    if (status) where.status = String(status);
 
     const admins = await prisma.admin.findMany({
       where,
@@ -59,28 +69,36 @@ export const getAllAdmins = async (req: Request, res: Response) => {
 };
 // --- Login do Admin ---
 export const loginAdmin = async (req: Request, res: Response) => {
-  const { email, senha } = req.body;
+  const { email, senha } = req.body || {};
+  if (typeof email !== 'string' || typeof senha !== 'string' || !email.trim() || !senha
+      || email.length > 254 || Buffer.byteLength(senha) > 72) {
+    return res.status(400).json({ error: 'Informe email e senha válidos.' });
+  }
 
   try {
     // Verifica se o email existe
     const admin = await prisma.admin.findUnique({
-      where: { email },
+      where: { email: email.trim().toLowerCase() },
     });
 
     if (!admin) {
-      return res.status(401).json({ error: 'Usuário não encontrado.' });
+      return res.status(401).json({ error: 'Email ou senha inválidos.' });
     }
 
     // Verifica se a senha está correta
     const senhaValida = await bcrypt.compare(senha, admin.senha);
     if (!senhaValida) {
-      return res.status(401).json({ error: 'Senha incorreta.' });
+      return res.status(401).json({ error: 'Email ou senha inválidos.' });
     }
 
+    if (admin.status !== 'ativo') {
+      return res.status(403).json({ error: 'Seu acesso aguarda aprovação ou foi desativado.' });
+    }
     // Remove a senha da resposta
     const { senha: _, ...adminSemSenha } = admin;
 
-    return res.status(200).json(adminSemSenha);
+    res.setHeader('Cache-Control', 'no-store');
+    return res.status(200).json({ user: adminSemSenha, token: issueToken(admin.id), expiresIn: tokenLifetimeSeconds });
   } catch (error) {
     console.error("Erro ao fazer login:", error);
     return res.status(500).json({ error: 'Erro interno no login.' });

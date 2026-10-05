@@ -1,4 +1,4 @@
-import Button from "@/components/ui/button/button";
+import Button from "@/components/ui/Button/button";
 import { useState } from "react";
 import { UseFormRegister } from "react-hook-form";
 import { RoiCalculatorSchema } from "./roiCalculatorSchema";
