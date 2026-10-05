@@ -7,6 +7,7 @@ const api = axios.create({
 });
 
 export const SESSION_CLEARED = 'bitfrost:session-cleared';
+export const VALES_CHANGED = 'bitfrost:vales-changed';
 export const clearSession = () => {
   sessionStorage.removeItem('accessToken');
   localStorage.removeItem('usuario');
@@ -19,7 +20,12 @@ api.interceptors.request.use(config => {
   if (token) config.headers.set('Authorization', `Bearer ${token}`);
   return config;
 });
-api.interceptors.response.use(response => response, error => {
+api.interceptors.response.use(response => {
+  if (response.config.url?.startsWith('/vales') && response.config.method !== 'get') {
+    window.dispatchEvent(new Event(VALES_CHANGED));
+  }
+  return response;
+}, error => {
   if (error.response?.status === 401) clearSession();
   return Promise.reject(error);
 });

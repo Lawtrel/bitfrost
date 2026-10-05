@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   BarChart,
   FileText,
@@ -20,7 +20,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar-button/sidebar";
 import { useEffect, useState } from "react";
-import { getVales } from "@/services/api";
+import { getVales, VALES_CHANGED } from "@/services/api";
 
 
 const menuItems = [
@@ -81,6 +81,7 @@ const menuItems = [
 ];
 
 export function AppSidebar({ role }: { role: string }) {
+  const { pathname } = useLocation();
   const { state } = useSidebar();
   const [online, setOnline] = useState(false);
   const collapsed = state === "collapsed";
@@ -90,6 +91,7 @@ export function AppSidebar({ role }: { role: string }) {
     vencidos: 0,
   });
   useEffect(() => {
+    let cancelled = false;
     const fetchStatus = async () => {
       try {
         // 🔹 Vales ativos (em valescadastrados, por exemplo)
@@ -100,8 +102,10 @@ export function AppSidebar({ role }: { role: string }) {
         const processadosCount = data.data.filter((vale) => vale.status === "processado").length;
 
         // 🔹 Vales vencidos
-        const vencidosCount = data.data.filter((vale) => vale.status === "vencido").length;
+        const vencidosCount = data.data.filter((vale) => vale.status === "vencido" ||
+          (vale.status === "acumulado" && new Date(vale.dataVencimento).getTime() < Date.now())).length;
 
+        if (cancelled) return;
         setStatus({
           ativos: ativosCount,
           processadosHoje: processadosCount,
@@ -109,13 +113,19 @@ export function AppSidebar({ role }: { role: string }) {
         });
         setOnline(true)
       } catch (err) {
+        if (cancelled) return;
         console.error("Erro ao buscar status do sistema:", err);
         setOnline(false)
       }
     };
 
     fetchStatus();
-  }, []);
+    window.addEventListener(VALES_CHANGED, fetchStatus);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(VALES_CHANGED, fetchStatus);
+    };
+  }, [pathname]);
 
   const menuFiltrado = menuItems.filter(item =>
     role === 'adm' || role === 'supervisor'
